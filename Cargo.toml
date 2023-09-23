@@ -9,5 +9,8 @@ crate-type = ["cdylib"]
 path = "./src/lib.rs"
 
 [dependencies]
-chrono = "0.4.19"
+chrono = "0.4.31"
+lazy_static = "1.4.0"
 pyo3 = { version = "0.19.2", features = ["extension-module"] }
+regex = "1.9.5"
+rust_decimal = "1.32.0"

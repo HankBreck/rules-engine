@@ -1,9 +1,5 @@
 use std::fmt;
 
-// mod errors {
-//     pub struct EvaluationError(pub String);
-//     pub const UNDEFINED: &str = "undefined";
-// }
 use crate::errors;
 
 fn assert_is_integer_number(values: &[i64]) -> Result<(), errors::EvaluationError> {

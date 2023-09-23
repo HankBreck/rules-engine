@@ -2,7 +2,7 @@
 pub struct Undefined;
 
 impl Undefined {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Undefined
     }
 }
@@ -25,7 +25,7 @@ pub struct EngineError {
 }
 
 impl EngineError {
-    fn new(message: &str) -> Self {
+    pub fn new(message: &str) -> Self {
         EngineError {
             message: message.to_string(),
         }
@@ -38,7 +38,7 @@ pub struct EvaluationError {
 }
 
 impl EvaluationError {
-    fn new(message: &str) -> Self {
+    pub fn new(message: &str) -> Self {
         EvaluationError {
             message: message.to_string(),
         }
@@ -46,12 +46,12 @@ impl EvaluationError {
 }
 
 #[derive(Debug)]
-struct SyntaxError {
+pub struct SyntaxError {
     message: String,
 }
 
 impl SyntaxError {
-    fn new(message: &str) -> Self {
+    pub fn new(message: &str) -> Self {
         SyntaxError {
             message: message.to_string(),
         }
@@ -59,13 +59,13 @@ impl SyntaxError {
 }
 
 #[derive(Debug)]
-struct DatetimeSyntaxError {
+pub struct DatetimeSyntaxError {
     message: String,
     value: String,
 }
 
 impl DatetimeSyntaxError {
-    fn new(message: &str, value: &str) -> Self {
+    pub fn new(message: &str, value: &str) -> Self {
         DatetimeSyntaxError {
             message: message.to_string(),
             value: value.to_string(),
@@ -74,13 +74,13 @@ impl DatetimeSyntaxError {
 }
 
 #[derive(Debug)]
-struct FloatSyntaxError {
+pub struct FloatSyntaxError {
     message: String,
     value: String,
 }
 
 impl FloatSyntaxError {
-    fn new(message: &str, value: &str) -> Self {
+    pub fn new(message: &str, value: &str) -> Self {
         FloatSyntaxError {
             message: message.to_string(),
             value: value.to_string(),
@@ -89,13 +89,13 @@ impl FloatSyntaxError {
 }
 
 #[derive(Debug)]
-struct TimedeltaSyntaxError {
+pub struct TimedeltaSyntaxError {
     message: String,
     value: String,
 }
 
 impl TimedeltaSyntaxError {
-    fn new(message: &str, value: &str) -> Self {
+    pub fn new(message: &str, value: &str) -> Self {
         TimedeltaSyntaxError {
             message: message.to_string(),
             value: value.to_string(),
@@ -104,14 +104,14 @@ impl TimedeltaSyntaxError {
 }
 
 #[derive(Debug)]
-struct RegexSyntaxError {
+pub struct RegexSyntaxError {
     message: String,
     error: String,
     value: String,
 }
 
 impl RegexSyntaxError {
-    fn new(message: &str, error: &str, value: &str) -> Self {
+    pub fn new(message: &str, error: &str, value: &str) -> Self {
         RegexSyntaxError {
             message: message.to_string(),
             error: error.to_string(),
@@ -121,13 +121,13 @@ impl RegexSyntaxError {
 }
 
 #[derive(Debug)]
-struct RuleSyntaxError {
+pub struct RuleSyntaxError {
     message: String,
     token: Option<String>,
 }
 
 impl RuleSyntaxError {
-    fn new(message: &str, token: Option<&str>) -> Self {
+    pub fn new(message: &str, token: Option<&str>) -> Self {
         let token_str = match token {
             Some(t) => t.to_string(),
             None => "EOF".to_string(),
@@ -141,7 +141,7 @@ impl RuleSyntaxError {
 }
 
 #[derive(Debug)]
-struct AttributeResolutionError {
+pub struct AttributeResolutionError {
     attribute_name: String,
     object: String,
     thing: Undefined,
@@ -149,7 +149,7 @@ struct AttributeResolutionError {
 }
 
 impl AttributeResolutionError {
-    fn new(attribute_name: &str, object: &str, suggestion: Option<&str>) -> Self {
+    pub fn new(attribute_name: &str, object: &str, suggestion: Option<&str>) -> Self {
         AttributeResolutionError {
             attribute_name: attribute_name.to_string(),
             object: object.to_string(),
@@ -160,7 +160,7 @@ impl AttributeResolutionError {
 }
 
 #[derive(Debug)]
-struct AttributeTypeError {
+pub struct AttributeTypeError {
     attribute_name: String,
     object_type: String,
     is_value: String,
@@ -169,7 +169,7 @@ struct AttributeTypeError {
 }
 
 impl AttributeTypeError {
-    fn new(
+    pub fn new(
         attribute_name: &str,
         object_type: &str,
         is_value: &str,
@@ -191,13 +191,13 @@ impl AttributeTypeError {
 }
 
 #[derive(Debug)]
-struct LookupError {
+pub struct LookupError {
     container: String,
     item: String,
 }
 
 impl LookupError {
-    fn new(container: &str, item: &str) -> Self {
+    pub fn new(container: &str, item: &str) -> Self {
         LookupError {
             container: container.to_string(),
             item: item.to_string(),
@@ -206,7 +206,7 @@ impl LookupError {
 }
 
 #[derive(Debug)]
-struct SymbolResolutionError {
+pub struct SymbolResolutionError {
     symbol_name: String,
     symbol_scope: Option<String>,
     thing: Undefined,
@@ -214,7 +214,7 @@ struct SymbolResolutionError {
 }
 
 impl SymbolResolutionError {
-    fn new(symbol_name: &str, symbol_scope: Option<&str>, suggestion: Option<&str>) -> Self {
+    pub fn new(symbol_name: &str, symbol_scope: Option<&str>, suggestion: Option<&str>) -> Self {
         SymbolResolutionError {
             symbol_name: symbol_name.to_string(),
             symbol_scope: symbol_scope.map(|s| s.to_string()),
@@ -225,7 +225,7 @@ impl SymbolResolutionError {
 }
 
 #[derive(Debug)]
-struct SymbolTypeError {
+pub struct SymbolTypeError {
     symbol_name: String,
     is_value: String,
     is_type: String,
@@ -233,7 +233,7 @@ struct SymbolTypeError {
 }
 
 impl SymbolTypeError {
-    fn new(symbol_name: &str, is_value: &str, is_type: &str, expected_type: &str) -> Self {
+    pub fn new(symbol_name: &str, is_value: &str, is_type: &str, expected_type: &str) -> Self {
         let message = format!(
             "symbol '{}' resolved to incorrect datatype (is: {}, expected: {})",
             symbol_name, is_type, expected_type
@@ -248,14 +248,14 @@ impl SymbolTypeError {
 }
 
 #[derive(Debug)]
-struct FunctionCallError {
+pub struct FunctionCallError {
     message: String,
     error: Option<String>,
     function_name: Option<String>,
 }
 
 impl FunctionCallError {
-    fn new(message: &str, error: Option<&str>, function_name: Option<&str>) -> Self {
+    pub fn new(message: &str, error: Option<&str>, function_name: Option<&str>) -> Self {
         FunctionCallError {
             message: message.to_string(),
             error: error.map(|e| e.to_string()),
