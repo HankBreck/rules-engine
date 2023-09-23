@@ -1,4 +1,13 @@
-[lib]
-name = "rules-engine"
+[package]
+name = "rules_engine"
 version = "0.1.0"
 edition = "2021"
+
+[lib]
+name = "rule_engine"
+crate-type = ["cdylib"]
+path = "./src/lib.rs"
+
+[dependencies]
+chrono = "0.4.19"
+pyo3 = { version = "0.19.2", features = ["extension-module"] }
