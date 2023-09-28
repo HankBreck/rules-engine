@@ -94,7 +94,7 @@ impl DataTypeMeta {
     }
 }
 
-enum DataType {
+pub enum DataType {
     ARRAY(Box<DataType>),
     BOOLEAN,
     DATETIME,
