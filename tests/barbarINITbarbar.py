@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  tests/ast/expression/__init__.py
+#  tests/__init__.py
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
@@ -30,13 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import unittest
-
-from .attribute import *
-from .function_call import *
-from .left_operator_right import *
-from .literal import *
-from .miscellaneous import *
-
-if __name__ == '__main__':
-	unittest.main()
+# from ._utils import *
+# from .ast import *
+# from .builtins import *
+# from .engine import *
+# from .errors import *
+# from .issues import *
+# from .parser import *
+# from .suggestions import *
+# from .thread_safety import *
+# from .types import *

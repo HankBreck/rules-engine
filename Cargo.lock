@@ -168,7 +168,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rules-engine"
+name = "rust-rule-engine"
 version = "0.1.0"
 dependencies = [
  "pyo3",

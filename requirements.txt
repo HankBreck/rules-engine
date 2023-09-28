@@ -1,0 +1,2 @@
+maturin==1.2.3
+rule-engine @ file:///Users/hankbreckenridge/git/projects/rules-engine/rust-rules-engine/target/wheels/rule_engine-0.1.0-cp311-cp311-macosx_11_0_arm64.whl
