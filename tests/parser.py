@@ -39,18 +39,18 @@
 # import unittest
 
 # import rule_engine.ast as ast
-# import rule_engine.engine as engine
+from rust_rule_engine.rust_rule_engine import engine
 # import rule_engine.errors as errors
-# import rule_engine.parser as parser
+from rust_rule_engine.rust_rule_engine import parser
 # import rule_engine.types as types
 
 # import dateutil.tz
 
-# class ParserTestsBase(unittest.TestCase):
-# 	_parser = parser.Parser()
-# 	context = engine.Context()
-# 	def _parse(self, string, context):
-# 		return self._parser.parse(string, context)
+class ParserTestsBase(unittest.TestCase):
+	_parser = parser.Parser()
+	context = engine.Context()
+	def _parse(self, string, context):
+		return self._parser.parse(string, context)
 
 # 	def assertStatementType(self, string, ast_expression):
 # 		statement = self._parse(string, self.context)
@@ -269,7 +269,7 @@
 # 		for expression in expressions:
 # 			self.assertStatementType(expression, ast.FuzzyComparisonExpression)
 
-# class ParserLiteralTests(ParserTestsBase):
+class ParserLiteralTests(ParserTestsBase):
 # 	def assertLiteralStatementEvalEqual(self, string, python_value, msg=None):
 # 		statement = self._parse(string, self.context)
 # 		self.assertIsInstance(statement, ast.Statement, msg='the parser did not return a statement')
@@ -307,9 +307,9 @@
 # 		self.assertLiteralStatementEvalEqual('["t", "e", "s", "t", "i", "n", "g"][1:-1]', tuple('estin'))
 # 		self.assertLiteralStatementEvalEqual('["t", "e", "s", "t", "i", "n", "g"][1:6]', tuple('estin'))
 
-# 	def test_parse_boolean(self):
-# 		self.assertLiteralStatementEqual('true', ast.BooleanExpression, True)
-# 		self.assertLiteralStatementEqual('false', ast.BooleanExpression, False)
+	def test_parse_boolean(self):
+		self.assertLiteralStatementEqual('true', ast.BooleanExpression, True)
+		self.assertLiteralStatementEqual('false', ast.BooleanExpression, False)
 
 # 	def test_parse_datetime(self):
 # 		self.assertLiteralStatementEqual('d"2016-10-15"', ast.DatetimeExpression, datetime.datetime(2016, 10, 15, tzinfo=dateutil.tz.tzlocal()))

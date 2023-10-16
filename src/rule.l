@@ -1,0 +1,37 @@
+%%
+\& "BWAND"
+\| "BWOR"
+\^ "BWXOR"
+
+
+\( "LPAREN"
+\) "RPAREN"
+\[ "LBRACKET"
+\] "RBRACKET"
+\{ "LBRACE"
+\} "RBRACE"
+\? "QMARK"
+\: "COLON"
+
+
+\== "EQ"
+\!= "NEQ"
+\> "GT"
+\>= "GTE"
+\< "LT"
+\<= "LTE"
+
+
+\+ "ADD"
+\- "SUB"
+\* "MUL"
+\/ "DIV"
+\% "MOD"
+
+
+0(b[01]+|o[0-7]+|x[0-9a-fA-F]+)|[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?|\.[0-9]+([eE][+-]?[0-9]+)? "FLOAT"
+\true "TRUE"
+\false "FALSE"
+
+[ \t\n\r]+ ;
+. "UNMATCHED"

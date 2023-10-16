@@ -7,11 +7,18 @@ edition = "2021"
 name = "rust_rule_engine"
 crate-type = ["cdylib"]
 
+[build-dependencies]
+cfgrammar = "0.13.3"
+lrlex = "0.13.3"
+lrpar = "0.13.3"
+
 [dependencies]
 pyo3 = "0.19.0"
+cfgrammar = "0.13.3"
+lrlex = "0.13.3"
+lrpar = "0.13.3"
 
 [package.metadata.scripts]
 build-python = "maturin build && pip install ."
 test-python = "for file in ./tests/*.py; do python \"$file\"; done"
-# test-python = "python ./tests/__init__.py"
 

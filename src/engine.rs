@@ -1,4 +1,4 @@
-use pyo3::{prelude::*, types::{PyType, PyString}};
+use pyo3::{prelude::*, types::PyType};
 use crate::parser;
 
 #[pyclass]
@@ -15,20 +15,14 @@ impl Context {
 }
 
 #[pyclass]
-pub struct Rule {
-    parser:  parser::Parser,
-}
+pub struct Rule {}
 
 #[pymethods]
 impl Rule {
 
-    // TODO: How to create default values like parser = Parser()?
-
     #[new]
     fn new() -> Self {
-        Rule {
-            parser: parser::Parser::new(),
-        }
+        Rule {}
     }
 
     /// Test whether or not the rule is syntactically correct. This verifies the grammar is well structured and that
@@ -49,7 +43,7 @@ impl Rule {
 }
 
 /// Adds the objects within the engine to the module.
-/// The module is th engine module created in lib.rs
+/// The module is the engine module created in lib.rs
 pub fn engine(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Rule>()?;
     Ok(())

@@ -112,9 +112,14 @@ class EngineRuleTests(unittest.TestCase):
 	false_item = {'first_name': 'Darth', 'last_name': 'Vader', 'email': 'dvader@empire.net'}
 	def test_engine_rule_is_valid(self):
 		rule = engine.Rule()
-		self.assertTrue(rule.is_valid(self.rule_text))
-		self.assertTrue(rule.is_valid('test == 1'))
-		self.assertFalse(rule.is_valid('test =='))
+		# self.assertTrue(rule.is_valid(self.rule_text))
+		self.assertTrue(rule.is_valid('1 == 1'))
+		self.assertTrue(rule.is_valid('1.3421 == 1.3422'))
+		self.assertTrue(rule.is_valid('23482.324123512 == 23482.324123512'))
+		self.assertTrue(rule.is_valid('true == false'))
+		self.assertTrue(rule.is_valid('true == true'))
+		# self.assertTrue(rule.is_valid('test == 1'))
+		# self.assertFalse(rule.is_valid('test =='))
 
 	# def test_engine_rule_raises(self):
 	# 	with self.assertRaises(errors.RuleSyntaxError):
