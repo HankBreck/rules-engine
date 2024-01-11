@@ -30,13 +30,13 @@
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import collections
-import datetime
-import decimal
-import os
-import re
-import sys
-import types
+# import collections
+# import datetime
+# import decimal
+# import os
+# import re
+# import sys
+# import types
 import unittest
 
 # import rule_engine.ast as ast
@@ -45,12 +45,13 @@ from rust_rule_engine.rust_rule_engine import engine
 # import rule_engine.errors as errors
 
 # import dateutil.tz
-try:
-	import graphviz
-except ImportError:
-	has_graphviz = False
-else:
-	has_graphviz = True
+# try:
+# 	import graphviz
+# except ImportError:
+# 	has_graphviz = False
+# else:
+# 	has_graphviz = True
+has_graphviz = False
 
 # class ContextTests(unittest.TestCase):
 # 	def test_context_default_timezone(self):
@@ -106,20 +107,22 @@ else:
 # 		with self.assertRaises(errors.SymbolResolutionError):
 # 			type_resolver('doesnotexist')
 
+
 class EngineRuleTests(unittest.TestCase):
 	rule_text = 'first_name == "Luke" and email =~ ".*@rebels.org$"'
 	true_item = {'first_name': 'Luke', 'last_name': 'Skywalker', 'email': 'luke@rebels.org'}
 	false_item = {'first_name': 'Darth', 'last_name': 'Vader', 'email': 'dvader@empire.net'}
+
 	def test_engine_rule_is_valid(self):
-		rule = engine.Rule()
+		# rule = engine.Rule()
 		# self.assertTrue(rule.is_valid(self.rule_text))
-		self.assertTrue(rule.is_valid('1 == 1'))
-		self.assertTrue(rule.is_valid('1.3421 == 1.3422'))
-		self.assertTrue(rule.is_valid('23482.324123512 == 23482.324123512'))
-		self.assertTrue(rule.is_valid('true == false'))
-		self.assertTrue(rule.is_valid('true == true'))
-		# self.assertTrue(rule.is_valid('test == 1'))
-		# self.assertFalse(rule.is_valid('test =='))
+		self.assertTrue(engine.Rule.is_valid('1 == 1'))
+		self.assertTrue(engine.Rule.is_valid('1.3421 == 1.3422'))
+		self.assertTrue(engine.Rule.is_valid('23482.324123512 == 23482.324123512'))
+		self.assertTrue(engine.Rule.is_valid('true == false'))
+		self.assertTrue(engine.Rule.is_valid('true == true'))
+		self.assertTrue(engine.Rule.is_valid('test == 1'))
+		self.assertFalse(engine.Rule.is_valid('test =='))
 
 	# def test_engine_rule_raises(self):
 	# 	with self.assertRaises(errors.RuleSyntaxError):

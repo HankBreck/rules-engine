@@ -1,4 +1,6 @@
 use std::fmt;
+use pyo3::exceptions::PyValueError;
+use pyo3::PyErr;
 
 macro_rules! define_error {
     ($name:ident, $base:ident) => {
@@ -28,6 +30,13 @@ macro_rules! define_error {
                 $base::new(&err.message)
             }
         }
+
+        impl From<$name> for PyErr {
+            fn from(err: $name) -> Self {
+                // FIXME: Need to solve for real error types
+                PyErr::new::<PyValueError, _>(err.message)
+            }
+        }
     };
 }
 
@@ -50,10 +59,22 @@ impl fmt::Display for EngineError {
 
 define_error!(EvaluationError, EngineError);
 
-// class EvaluationError(EngineError):
-// 	"""
-// 	An error raised for issues which occur while the rule is being evaluated. This can occur at parse time while AST
-// 	nodes are being evaluated during the reduction phase.
-// 	"""
-// 	pass
+#[derive(Debug)]
+pub struct ParseError {
+    message: String,
+}
+impl ParseError {
+    pub fn new(message: &str) -> Self {
+        ParseError{
+            message: message.to_string(),
+        }
+    }
+}
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+define_error!(SymbolResolutionError, ParseError);
 

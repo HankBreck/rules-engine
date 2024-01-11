@@ -17,8 +17,20 @@ Equality -> Result<EqualityExpression, ()>:
     ;
 
 Comparison -> Result<ComparisonExpression, ()>:
-      Additive { Ok(ComparisonExpression::Additive($1?)) }
-    ;
+       Additive 'LT' Additive {
+        Ok(ComparisonExpression::LessThan(Box::new($1?), Box::new($3?)) )
+       }
+     | Additive 'GT' Additive {
+        Ok(ComparisonExpression::GreaterThan(Box::new($1?), Box::new($3?)) )
+       }
+     | Additive 'LTE' Additive {
+        Ok(ComparisonExpression::LessThanOrEqual(Box::new($1?), Box::new($3?)) )
+       }
+     | Additive 'GTE' Additive {
+        Ok(ComparisonExpression::GreaterThanOrEqual(Box::new($1?), Box::new($3?)) )
+       }
+     | Additive { Ok(ComparisonExpression::Additive($1?)) }
+     ;
 
 Additive -> Result<AdditiveExpression, ()>:
       Factor { Ok(AdditiveExpression::Factor($1?)) }
@@ -33,9 +45,12 @@ Unary -> Result<UnaryExpression, ()>:
     ;
 
 Primary -> Result<PrimaryExpression, ()>:
-      'FLOAT' { Ok(PrimaryExpression::Float($span)) }
+      'FLOAT' { Ok(PrimaryExpression::Float(
+            $lexer.span_str($span).parse::<f64>().unwrap()
+        )) }
       | 'TRUE' { Ok(PrimaryExpression::True) }
       | 'FALSE' { Ok(PrimaryExpression::False) }
+      | 'SYMBOL'  { Ok(PrimaryExpression::Symbol($lexer.span_str($span).to_string())) }
     ;
 
 Unmatched -> ():
@@ -44,22 +59,3 @@ Unmatched -> ():
 %%
 
 use crate::ast::*;
-
-// use cfgrammar::Span;
-
-// pub enum Expr {
-//     EqExpr {
-//         lhs: Box<Expr>,
-//         rhs: Box<Expr>,
-//     },
-//     NeqExpr {
-//         lhs: Box<Expr>,
-//         rhs: Box<Expr>,
-//     },
-//     FloatExpr {
-//         value: Span,
-//     },
-//     BooleanExpr {
-//         value: bool,
-//     },
-// }

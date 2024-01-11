@@ -19,6 +19,5 @@ lrlex = "0.13.3"
 lrpar = "0.13.3"
 
 [package.metadata.scripts]
-build-python = "maturin build && pip install ."
-test-python = "for file in ./tests/*.py; do python \"$file\"; done"
+build = "cargo build --release"
 

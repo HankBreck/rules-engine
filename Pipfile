@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+maturin = "==1.2.3"
+
+[packages]
+rust_rule_engine = {path = "./target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
+
+[requires]
+python_version = "3.12"
+
+[scripts]
+build = "maturin build -i python3.12 --release"
+test = "python -m unittest -v tests"
+test-python = "for file in ./tests/*.py; do python \"$file\"; done"
+profile = "python ./profile.py"

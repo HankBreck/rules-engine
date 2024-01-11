@@ -1,3 +1,5 @@
+extern crate core;
+
 pub mod ast;
 mod engine;
 mod errors;
