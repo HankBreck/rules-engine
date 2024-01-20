@@ -4,34 +4,38 @@
 
 ### Python
 
-You must activate the venv to start.
-
-```shell
-source .env/bin/activate
-```
-
-You may then install the dependencies by running:
-
-```shell
-pip install -r requirements.txt
-```
+TODO: Update with pipenv instructions
 
 ### Rust
 
 If you do not have it installed already you must install Cargo. Check the [Rust Documentation](https://doc.rust-lang.org/cargo/getting-started/installation.html) for instructions on how to do this
 
-To build the project you must have `cargo-run-scripts` installed. You can do this by running the command below.
+TODO: Update with cargo instructions
 
-```shell
-cargo install cargo-run-script
-```
+## Grammar
+```bnf
+expression = equality_expression;
 
-You can then build the Python module by running:
+TODO: Implement logical operators
 
-```shell
-cargo run-script build-python
-```
-You can execute the tests from zeroSteiner's [Python rule engine](https://github.com/zeroSteiner/rule-engine/) by running the following command
-```shell
-cargo run-script test-python
+equality_expression = comparison_expression { ("!=" | "==") comparison_expression };
+
+comparison_expression = additive_expression { (">" | ">=" | "<" | "<=" ) additive_expression };
+
+additive_expression = factor_expression { ("+" | "-" ) factor_expression };
+
+factor_expression = unary_expression { ("/" | "*" ) unary_expression };
+
+unary_expression = ( "not" | "-" ) unary_expression | primary_expression;
+
+primary_expression = IDENTIFIER | STRING | INTEGER | "true" | "false" | "null"| 
+                     list_literal | function_call | "(", expression, ")"
+
+list_literal = '[', expression,  { ',', expression } ']'; 
+
+function_call = IDENTIFIER, '(', argument_list , ')'
+
+argument_list = [ expression , { ',' , expression } ]
+
+type_expression = 'int' | 'string' | 'bool' | 'object' | 'list' [, '<' , type_expression, '>']
 ```

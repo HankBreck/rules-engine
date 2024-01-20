@@ -7,13 +7,15 @@ verify_ssl = true
 maturin = "==1.2.3"
 
 [packages]
-rust_rule_engine = {path = "./target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
+rule-engine = "*"
+rust-rule-engine = {file = "packages/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
 
 [requires]
 python_version = "3.12"
 
 [scripts]
-build = "maturin build -i python3.12 --release"
+refresh = "./scripts/refresh.sh"
+build-whl = "maturin build -i python3.12 -b pyo3 -o ./packages --release --strip"
 test = "python -m unittest -v tests"
 test-python = "for file in ./tests/*.py; do python \"$file\"; done"
-profile = "python ./profile.py"
+profile = "python ./compare.py"

@@ -1,41 +1,53 @@
-use std::collections::HashMap;
+use crate::ast::{EvalResult, EvalResultTypes, NestedValue, Statement};
+use crate::errors::{EvaluationError, SymbolResolutionError};
+use crate::parser;
+use crate::utils::py_dict_to_hashmap;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use crate::ast::{EvalResult, EvalResultTypes, Statement};
-use crate::ast::EvalResultTypes::Boolean;
-use crate::errors::SymbolResolutionError;
-use crate::parser;
+use std::collections::HashMap;
 
 #[pyclass]
 pub struct Context {
+    // TODO: Is this even needed? We don't have statements so idk how assignments would work
     assignments: HashMap<String, EvalResultTypes>,
     // TODO: Implement
     //  - Symbol resolution
-    //      - Need to add SymbolExpression
-    //          - Should be a placeholder that evaluated to a value based on the context
 }
-
 impl Context {
-
     fn new(assignments: Option<HashMap<String, EvalResultTypes>>) -> Self {
         Context {
             assignments: assignments.unwrap_or(HashMap::new()),
         }
     }
 
-    pub fn resolve(self, name: String, thing: Option<HashMap<String, EvalResultTypes>>) -> Result<EvalResultTypes, SymbolResolutionError> {
+    pub fn resolve(
+        &self,
+        name: &String,
+        thing: Option<&HashMap<String, NestedValue>>,
+    ) -> Result<EvalResultTypes, SymbolResolutionError> {
         // TODO: Implement me
         //  - Match builtins
-        if let Some(value) = self.assignments.get(&name) {
-            return Ok((*value).clone());
+        if let Some(value) = self.assignments.get(name) {
+            return Ok(value.clone());
         }
         if let Some(thing) = thing {
-            if let Some(value) = thing.get(&name) {
-                return Ok((*value).clone());
+            if let Some(value) = thing.get(name) {
+                let converted_value: EvalResultTypes = value.clone().try_into().map_err(|err| {
+                    SymbolResolutionError::new(&format!(
+                        "Failed to convert value to EvalResultTypes: {}",
+                        err
+                    ))
+                })?;
+                return Ok(converted_value);
             }
         }
-        Err(SymbolResolutionError::new(&format!("Symbol {} not found", name)))
+        Err(SymbolResolutionError::new(&format!(
+            "Symbol {} not found",
+            name
+        )))
     }
+
+    // TODO: Implement attribute resolution
 }
 
 #[pyclass]
@@ -44,46 +56,50 @@ pub struct Rule {
     statement: Statement,
 }
 
+/// Test docstring for the Rule class
 #[pymethods]
 impl Rule {
-
     #[new]
     fn new(text: String, context: Option<&Context>) -> Self {
         let parser = parser::Parser::new();
         // FIXME: Handle errors more elegantly
         let statement = parser.parse_internal(text).unwrap();
-        Rule {
-            parser,
-            statement,
-        }
+        Rule { parser, statement }
     }
 
     /// Test whether or not the rule is syntactically correct. This verifies the grammar is well structured and that
     /// there are no type compatibility issues regarding literals or symbols with known types (see
     /// `Context.resolve_type` for specifying symbol type information).
-    /// 
+    ///
     /// # Arguments
     /// * text - The text to parse
     /// * context - The context used for specifying symbol type information.
     #[staticmethod]
-    fn is_valid(text: String, context: Option<Context>) -> PyResult<bool> {
+    fn is_valid(text: String, _ctx: Option<&Context>) -> PyResult<bool> {
         let cls_parser = parser::Parser::new();
-        match cls_parser.parse(text, &context.unwrap_or(Context::new(None))) {
+        let statement = cls_parser.parse_internal(text);
+        match statement {
             Ok(_) => Ok(true),
-            Err(err) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(err.to_string()))
+            Err(_) => Ok(false),
         }
     }
 
-    fn evaluate(&self, ctx: Option<Context>, thing: Option<PyDict>) -> EvalResult {
-        // FIXME: Convert pydict into hashmap (or accept PyDict in AST)
-        self.statement.evaluate(&ctx.unwrap_or(Context::new(None)), thing.unwrap_or(HashMap::new()))
+    pub fn evaluate(&self, thing: Option<&PyDict>, ctx: Option<&Context>) -> EvalResult {
+        // FIXME: Convert pydict into hashmap recursively
+        let values = &py_dict_to_hashmap(thing)
+            .map_err(|err| EvaluationError::new(&format!("Failed to convert pydict: {}", err)))?;
+        self.statement
+            .evaluate(&ctx.unwrap_or(&Context::new(None)), values)
     }
 
-    fn matches(&self, thing: Option<PyDict>) -> bool {
-        match self.evaluate(None, thing) {
-            Err(err) => false,
-            Ok(Boolean(value)) => value,
+    pub fn matches(&self, thing: Option<&PyDict>) -> bool {
+        // Should be the equivalent of calling bool(rule.evaluate(thing)) in Python
+        match self.evaluate(thing, None) {
+            Ok(EvalResultTypes::Boolean(value)) => value,
             Ok(EvalResultTypes::Float(value)) => value != 0f64,
+            Ok(EvalResultTypes::Integer(value)) => value != 0i64,
+            Ok(EvalResultTypes::String(value)) => !value.is_empty(),
+            Err(_) => false,
         }
     }
 }
@@ -112,10 +128,35 @@ mod tests {
             let result = Rule::is_valid(statement.into(), None).unwrap();
             assert!(result);
         }
-        let invalid_statements = vec!["true ==", "1abc == 1"];
+        let invalid_statements = vec!["1abc == 1", "true =="];
         for statement in invalid_statements {
-            assert!(Rule::is_valid(statement.into(), None).is_err());
+            println!("Testing invalid statement: {}", statement);
+            assert_eq!(Rule::is_valid(statement.into(), None).unwrap(), false);
         }
     }
 
+    #[test]
+    fn test_evaluate_with_symbol_resolution() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new("age == 1".into(), None);
+        let _ = &Python::with_gil(|py| {
+            let dict = PyDict::new(py);
+            dict.set_item("age", 1).unwrap();
+            let result = rule.evaluate(Some(dict), None).unwrap();
+            assert_eq!(result, EvalResultTypes::Boolean(true));
+        });
+    }
+
+    #[test]
+    fn test_evaluate_with_multisymbol_resolution() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new("age >= required_age".into(), None);
+        let _ = &Python::with_gil(|py| {
+            let dict = PyDict::new(py);
+            dict.set_item("age", 23).unwrap();
+            dict.set_item("required_age", 21).unwrap();
+            let result = rule.evaluate(Some(dict), None).unwrap();
+            assert_eq!(result, EvalResultTypes::Boolean(true));
+        });
+    }
 }

@@ -58,6 +58,7 @@ impl fmt::Display for EngineError {
 }
 
 define_error!(EvaluationError, EngineError);
+define_error!(TypeConversionError, EngineError);
 
 #[derive(Debug)]
 pub struct ParseError {

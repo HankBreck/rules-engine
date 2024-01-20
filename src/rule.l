@@ -1,9 +1,4 @@
 %%
-\& "BWAND"
-\| "BWOR"
-\^ "BWXOR"
-
-
 \( "LPAREN"
 \) "RPAREN"
 \[ "LBRACKET"
@@ -13,7 +8,6 @@
 \? "QMARK"
 \: "COLON"
 
-
 \== "EQ"
 \!= "NEQ"
 \> "GT"
@@ -21,13 +15,11 @@
 \< "LT"
 \<= "LTE"
 
-
 \+ "ADD"
 \- "SUB"
 \* "MUL"
 \/ "DIV"
 \% "MOD"
-
 
 true "TRUE"
 false "FALSE"

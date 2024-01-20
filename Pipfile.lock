@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fe551222088afbf8647e8dbb91a60e4b0c0354f96a14ce6c8936b5c14a464c40"
+            "sha256": "b92b7edc93ae827075bf98af0d7aef96bb9844d7639ac039aa823c7adb167fd9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,11 +16,41 @@
         ]
     },
     "default": {
-        "rust-rule-engine": {
+        "ply": {
             "hashes": [
-                "sha256:1b2d3ef94a5bbd3b99766ee76c80bc0096e0acfded785b995e8ceee320272cc8"
+                "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3",
+                "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce"
             ],
-            "path": "./target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"
+            "version": "==3.11"
+        },
+        "python-dateutil": {
+            "hashes": [
+                "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86",
+                "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==2.8.2"
+        },
+        "rule-engine": {
+            "hashes": [
+                "sha256:30f8e3aea345752cd96bd8c0f431d386c7484984f3189c968efd903e54699c86"
+            ],
+            "index": "pypi",
+            "version": "==4.3.1"
+        },
+        "rust-rule-engine": {
+            "file": "packages/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl",
+            "hashes": [
+                "sha256:e031a3d1a2c0df1c3fc1450527a14c14de4ee99719de164e0c3e6bd5309e1869"
+            ]
+        },
+        "six": {
+            "hashes": [
+                "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
+                "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==1.16.0"
         }
     },
     "develop": {

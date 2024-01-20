@@ -6,7 +6,6 @@ input = '23482.324123512 == true'
 rust_rule = rust_engine.Rule(input)
 py_rule = py_engine.Rule(input)
 
-# TODO: Profile this
 def test_rust_rule_engine():
     rust_rule.matches(None)
 

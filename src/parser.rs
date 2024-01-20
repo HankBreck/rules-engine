@@ -1,27 +1,33 @@
 use pyo3::prelude::*;
+use std::collections::HashMap;
 
-use crate::engine::Context;
 use crate::ast::Statement;
+use crate::engine::Context;
 
-use lrlex::{DefaultLexerTypes, lrlex_mod};
-use lrpar::lrpar_mod;
 use crate::errors::ParseError;
+use lrlex::{lrlex_mod, DefaultLexerTypes};
+use lrpar::lrpar_mod;
 
 lrlex_mod!("rule.l");
 lrpar_mod!("rule.y");
-
 
 // TODO: Can we refactor this into a single function without using a struct?
 //  - Will this break the interface with Python?
 #[pyclass]
 pub struct Parser {
-    pub lexerdef: lrlex::LRNonStreamingLexerDef<DefaultLexerTypes>
+    pub lexerdef: lrlex::LRNonStreamingLexerDef<DefaultLexerTypes>,
 }
 
 impl Parser {
-    pub fn parse_internal<>(&self, text: String) -> Result<Statement, ParseError> {
+    pub fn parse_internal(&self, text: String) -> Result<Statement, ParseError> {
         let lexer = self.lexerdef.lexer(&text);
-        let (res, _errs) = rule_y::parse(&lexer);
+        let (res, errs) = rule_y::parse(&lexer);
+        if !errs.is_empty() {
+            return Err(ParseError::new(&format!(
+                "Failed to parse expression: {:?}",
+                errs
+            )));
+        }
         if let Some(Ok(r)) = res {
             Ok(Statement::Expression(r))
         } else {
@@ -49,9 +55,11 @@ impl Parser {
         Python::with_gil(|py| -> Result<Py<PyAny>, PyErr> {
             // FIXME: We should be returning a statement from this parse function
             //  - Can an enum be a python class? Probably not so we'll need to wrap it in a struct or something
-            match res.evaluate(context) {
+            match res.evaluate(context, &HashMap::new()) {
                 Ok(result) => Ok(result.into_py(py)),
-                Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string())),
+                Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                    e.to_string(),
+                )),
             }
         })
     }
