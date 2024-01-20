@@ -6,13 +6,11 @@ use crate::engine::Context;
 
 use crate::errors::ParseError;
 use lrlex::{lrlex_mod, DefaultLexerTypes};
-use lrpar::lrpar_mod;
+use lrpar::{lrpar_mod, NonStreamingLexer};
 
 lrlex_mod!("rule.l");
 lrpar_mod!("rule.y");
 
-// TODO: Can we refactor this into a single function without using a struct?
-//  - Will this break the interface with Python?
 #[pyclass]
 pub struct Parser {
     pub lexerdef: lrlex::LRNonStreamingLexerDef<DefaultLexerTypes>,

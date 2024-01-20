@@ -16,6 +16,6 @@ python_version = "3.12"
 [scripts]
 refresh = "./scripts/refresh.sh"
 build-whl = "maturin build -i python3.12 -b pyo3 -o ./packages --release --strip"
+test-fresh = "sh -c \"./scripts/refresh.sh && python -m unittest -v tests\""
 test = "python -m unittest -v tests"
-test-python = "for file in ./tests/*.py; do python \"$file\"; done"
 profile = "python ./compare.py"

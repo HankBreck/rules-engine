@@ -118,6 +118,9 @@ impl EqualityExpression {
                     (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs == rhs))
                     }
+                    (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs == rhs))
+                    }
                     _ => Err(EvaluationError::new("Cannot compare different types")),
                 }
             }
@@ -129,6 +132,9 @@ impl EqualityExpression {
                         Ok(EvalResultTypes::Boolean(lhs != rhs))
                     }
                     (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs != rhs))
+                    }
+                    (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs != rhs))
                     }
                     _ => Err(EvaluationError::new("Cannot compare different types")),
@@ -232,6 +238,7 @@ pub enum PrimaryExpression {
     True,
     False,
     Symbol(String),
+    String(String),
 }
 impl PrimaryExpression {
     pub fn evaluate(&self, ctx: &Context, thing: &HashMap<String, NestedValue>) -> EvalResult {
@@ -242,6 +249,7 @@ impl PrimaryExpression {
             PrimaryExpression::Symbol(str) => ctx
                 .resolve(str, Some(thing))
                 .map_err(|err| EvaluationError::new(&err.to_string())),
+            PrimaryExpression::String(str) => Ok(EvalResultTypes::String(str.clone())),
         }
     }
 }

@@ -27,3 +27,11 @@ class SymbolResolutionTests(unittest.TestCase):
         rule = engine.Rule("age == 1")
         self.assertTrue(rule.evaluate({"age": 1}))
 
+    def test_comparison_with_string_literal(self):
+        rule = engine.Rule("name == \"Hank\"")
+        self.assertTrue(rule.evaluate({"name": "Hank"}))
+
+    def test_comparison_with_string_literal_is_case_sensitive(self):
+        rule = engine.Rule("name == \"Hank\"")
+        self.assertFalse(rule.evaluate({"name": "hank"}))
+
