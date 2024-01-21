@@ -7,6 +7,9 @@ edition = "2021"
 name = "rust_rule_engine"
 crate-type = ["cdylib", "rlib"]
 
+[profile.release]
+debug = true
+
 [build-dependencies]
 cfgrammar = "0.13.3"
 lrlex = "0.13.3"

@@ -41,7 +41,7 @@
         "rust-rule-engine": {
             "file": "packages/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl",
             "hashes": [
-                "sha256:bdd00927b1232390d8670034a449b8407b4b697a4714f18c0fcc72e652444a08"
+                "sha256:1a5a09cee8fd27ae30c4aebf77b31efc0c111d89681f7e420c0155dbc6907571"
             ]
         },
         "six": {

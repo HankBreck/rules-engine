@@ -11,8 +11,6 @@ use std::collections::HashMap;
 pub struct Context {
     // TODO: Is this even needed? We don't have statements so idk how assignments would work
     assignments: HashMap<String, EvalResultTypes>,
-    // TODO: Implement
-    //  - Symbol resolution
 }
 impl Context {
     fn new(assignments: Option<HashMap<String, EvalResultTypes>>) -> Self {
@@ -56,7 +54,7 @@ pub struct Rule {
 #[pymethods]
 impl Rule {
     #[new]
-    pub fn new(text: String, context: Option<&Context>) -> Self {
+    pub fn new(text: String) -> Self {
         let parser = parser::Parser::new();
         // FIXME: Handle errors more elegantly
         let statement = parser.parse_internal(text).unwrap();
@@ -131,7 +129,7 @@ mod tests {
     #[test]
     fn test_evaluate_with_symbol_resolution() {
         pyo3::prepare_freethreaded_python();
-        let rule = Rule::new("age == 1".into(), None);
+        let rule = Rule::new("age == 1".into());
         let _ = &Python::with_gil(|py| {
             let dict = PyDict::new(py);
             dict.set_item("age", 1).unwrap();
@@ -143,7 +141,7 @@ mod tests {
     #[test]
     fn test_evaluate_with_multisymbol_resolution() {
         pyo3::prepare_freethreaded_python();
-        let rule = Rule::new("age >= required_age".into(), None);
+        let rule = Rule::new("age >= required_age".into());
         let _ = &Python::with_gil(|py| {
             let dict = PyDict::new(py);
             dict.set_item("age", 23).unwrap();
