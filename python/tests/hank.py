@@ -1,6 +1,7 @@
 import unittest
 from rust_rule_engine.rust_rule_engine import engine
 
+
 class LogicalExpressionTests(unittest.TestCase):
 
         def test_and(self):

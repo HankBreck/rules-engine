@@ -69,7 +69,7 @@ Currently, we have comparisons for the following rule engine implementations:
 - Python eval
 
 You can run the script to compare the performance of these implementations. You can also modify the rules each engine
-will evaluate by modifying the [compare.py](compare.py) script.
+will evaluate by modifying the [compare.py](scripts/compare.py) script.
 
 ```bash
 pipenv run compare
