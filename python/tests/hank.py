@@ -69,15 +69,20 @@ class ComparisonExpressionTests(unittest.TestCase):
 
 class SymbolResolutionTests(unittest.TestCase):
 
-    def test_comparison(self):
-        rule = engine.Rule("age == 1")
-        self.assertTrue(rule.evaluate({"age": 1}))
+    def test_equality(self):
+        self.assertTrue(engine.Rule("age == 1").evaluate({"age": 1}))
 
-    def test_comparison_with_string_literal(self):
-        rule = engine.Rule("name == \"Hank\"")
-        self.assertTrue(rule.evaluate({"name": "Hank"}))
+    def test_equality_with_string_literal(self):
+        self.assertTrue(engine.Rule("name == \"Hank\"").evaluate({"name": "Hank"}))
 
-    def test_comparison_with_string_literal_is_case_sensitive(self):
-        rule = engine.Rule("name == \"Hank\"")
-        self.assertFalse(rule.evaluate({"name": "hank"}))
+    def test_equality_with_string_literal_is_case_sensitive(self):
+        self.assertFalse(engine.Rule("name == \"Hank\"").evaluate({"name": "hank"}))
 
+    def test_equality_between_float_and_int(self):
+        self.assertTrue(engine.Rule("age == 1.0").evaluate({"age": 1}))
+
+    def test_comparison_between_float_and_int(self):
+        self.assertTrue(engine.Rule("age > 0").evaluate({"age": 1.0}))
+        self.assertTrue(engine.Rule("1 >= age").evaluate({"age": 1.0}))
+        self.assertFalse(engine.Rule("age < 0").evaluate({"age": 0.0}))
+        self.assertFalse(engine.Rule("0 <= age").evaluate({"age": -0.001}))

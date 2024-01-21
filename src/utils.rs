@@ -34,7 +34,7 @@ fn try_into_eval_result_types(value: &PyAny) -> PyResult<EvalResultTypes> {
         return Ok(EvalResultTypes::String(py_str.to_string()));
     }
     if let Ok(py_int) = value.extract::<&PyInt>() {
-        return Ok(EvalResultTypes::Integer(py_int.extract()?));
+        return Ok(EvalResultTypes::Float(py_int.extract()?));
     }
     if let Ok(py_float) = value.extract::<&PyFloat>() {
         return Ok(EvalResultTypes::Float(py_float.extract()?));

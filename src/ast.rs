@@ -102,7 +102,17 @@ impl EqualityExpression {
                 let lhs = lhs.evaluate(ctx, thing)?;
                 let rhs = rhs.evaluate(ctx, thing)?;
                 match (lhs, rhs) {
+                    // TODO: This is a bit of a mess, but it works for now
                     (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs == rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs as f64 == rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs == rhs as f64))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs == rhs))
                     }
                     (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
@@ -119,6 +129,15 @@ impl EqualityExpression {
                 let rhs = rhs.evaluate(ctx, thing)?;
                 match (lhs, rhs) {
                     (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs != rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs as f64 != rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs != rhs as f64))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs != rhs))
                     }
                     (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
@@ -152,6 +171,15 @@ impl ComparisonExpression {
                     (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs > rhs))
                     }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs as f64 > rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs > rhs as f64))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs > rhs))
+                    }
                     _ => Err(EvaluationError::new("Cannot compare different types")),
                 }
             }
@@ -160,6 +188,15 @@ impl ComparisonExpression {
                 let rhs = rhs.evaluate(ctx, thing)?;
                 match (lhs, rhs) {
                     (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs >= rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs as f64 >= rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs >= rhs as f64))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs >= rhs))
                     }
                     _ => Err(EvaluationError::new("Cannot compare different types")),
@@ -172,6 +209,15 @@ impl ComparisonExpression {
                     (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs < rhs))
                     }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean((lhs as f64) < rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs < rhs as f64))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs < rhs))
+                    }
                     _ => Err(EvaluationError::new("Cannot compare different types")),
                 }
             }
@@ -180,6 +226,15 @@ impl ComparisonExpression {
                 let rhs = rhs.evaluate(ctx, thing)?;
                 match (lhs, rhs) {
                     (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs <= rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Boolean((lhs as f64) <= rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs <= rhs as f64))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
                         Ok(EvalResultTypes::Boolean(lhs <= rhs))
                     }
                     _ => Err(EvaluationError::new("Cannot compare different types")),
