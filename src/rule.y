@@ -3,7 +3,17 @@
 %expect-unused Unmatched "UNMATCHED"
 %%
 Expr -> Result<Expression, ()>:
-      Equality { Ok(Expression::Equality($1?)) }
+      Logical { Ok(Expression::Logical($1?)) }
+    ;
+
+Logical -> Result<LogicalExpression, ()>:
+      Equality 'AND' Equality {
+        Ok(LogicalExpression::And(Box::new($1?), Box::new($3?)) )
+      }
+    | Equality 'OR' Equality {
+        Ok(LogicalExpression::Or(Box::new($1?), Box::new($3?)) )
+      }
+    | Equality { Ok(LogicalExpression::Equality($1?)) }
     ;
 
 Equality -> Result<EqualityExpression, ()>:

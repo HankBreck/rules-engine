@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 name = "rust_rule_engine"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [build-dependencies]
 cfgrammar = "0.13.3"

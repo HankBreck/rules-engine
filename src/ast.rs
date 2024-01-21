@@ -90,12 +90,45 @@ impl Statement {
 }
 
 pub enum Expression {
-    Equality(EqualityExpression),
+    Logical(LogicalExpression),
 }
 impl Expression {
     pub fn evaluate(&self, ctx: &Context, thing: &HashMap<String, NestedValue>) -> EvalResult {
         match self {
-            Expression::Equality(expr) => expr.evaluate(ctx, thing),
+            Expression::Logical(expr) => expr.evaluate(ctx, thing),
+        }
+    }
+}
+
+pub enum LogicalExpression {
+    And(Box<EqualityExpression>, Box<EqualityExpression>),
+    Or(Box<EqualityExpression>, Box<EqualityExpression>),
+    Equality(EqualityExpression), // Value passthrough
+}
+impl LogicalExpression {
+    pub fn evaluate(&self, ctx: &Context, thing: &HashMap<String, NestedValue>) -> EvalResult {
+        match self {
+            LogicalExpression::And(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                match (lhs, rhs) {
+                    (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs && rhs))
+                    }
+                    _ => Err(EvaluationError::new("Cannot compare different types")),
+                }
+            }
+            LogicalExpression::Or(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                match (lhs, rhs) {
+                    (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
+                        Ok(EvalResultTypes::Boolean(lhs || rhs))
+                    }
+                    _ => Err(EvaluationError::new("Cannot compare different types")),
+                }
+            }
+            LogicalExpression::Equality(eq) => eq.evaluate(ctx, thing),
         }
     }
 }

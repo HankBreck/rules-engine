@@ -60,7 +60,7 @@ pub struct Rule {
 #[pymethods]
 impl Rule {
     #[new]
-    fn new(text: String, context: Option<&Context>) -> Self {
+    pub fn new(text: String, context: Option<&Context>) -> Self {
         let parser = parser::Parser::new();
         // FIXME: Handle errors more elegantly
         let statement = parser.parse_internal(text).unwrap();
@@ -75,7 +75,7 @@ impl Rule {
     /// * text - The text to parse
     /// * context - The context used for specifying symbol type information.
     #[staticmethod]
-    fn is_valid(text: String, _ctx: Option<&Context>) -> PyResult<bool> {
+    pub fn is_valid(text: String, _ctx: Option<&Context>) -> PyResult<bool> {
         let cls_parser = parser::Parser::new();
         let statement = cls_parser.parse_internal(text);
         match statement {
@@ -85,7 +85,6 @@ impl Rule {
     }
 
     pub fn evaluate(&self, thing: Option<&PyDict>, ctx: Option<&Context>) -> EvalResult {
-        // FIXME: Convert pydict into hashmap recursively
         let values = &py_dict_to_hashmap(thing)
             .map_err(|err| EvaluationError::new(&format!("Failed to convert pydict: {}", err)))?;
         self.statement

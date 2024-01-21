@@ -1,7 +1,7 @@
 extern crate core;
 
 pub mod ast;
-mod engine;
+pub mod engine;
 mod errors;
 mod parser;
 mod utils;
