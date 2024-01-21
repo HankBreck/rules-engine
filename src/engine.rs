@@ -1,9 +1,10 @@
-use crate::ast::{EvalResult, EvalResultTypes, NestedValue, Statement};
+use crate::ast::{EvalResult, EvalResultTypes, Statement};
 use crate::errors::{EvaluationError, SymbolResolutionError};
 use crate::parser;
-use crate::utils::py_dict_to_hashmap;
+use crate::utils::get_value_from_py_dict;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+use std::any::Any;
 use std::collections::HashMap;
 
 #[pyclass]
@@ -23,22 +24,17 @@ impl Context {
     pub fn resolve(
         &self,
         name: &String,
-        thing: Option<&HashMap<String, NestedValue>>,
+        thing: Option<&PyDict>,
     ) -> Result<EvalResultTypes, SymbolResolutionError> {
-        // TODO: Implement me
-        //  - Match builtins
+        // TODO: Match builtins
         if let Some(value) = self.assignments.get(name) {
             return Ok(value.clone());
         }
-        if let Some(thing) = thing {
-            if let Some(value) = thing.get(name) {
-                let converted_value: EvalResultTypes = value.clone().try_into().map_err(|err| {
-                    SymbolResolutionError::new(&format!(
-                        "Failed to convert value to EvalResultTypes: {}",
-                        err
-                    ))
-                })?;
-                return Ok(converted_value);
+        if let Some(dict) = thing {
+            match get_value_from_py_dict(dict, &[name]) {
+                Ok(Some(value)) => return Ok(value),
+                Err(_) => return Err(SymbolResolutionError::new("Failed to get value")),
+                _ => {}
             }
         }
         Err(SymbolResolutionError::new(&format!(
@@ -85,10 +81,8 @@ impl Rule {
     }
 
     pub fn evaluate(&self, thing: Option<&PyDict>, ctx: Option<&Context>) -> EvalResult {
-        let values = &py_dict_to_hashmap(thing)
-            .map_err(|err| EvaluationError::new(&format!("Failed to convert pydict: {}", err)))?;
         self.statement
-            .evaluate(&ctx.unwrap_or(&Context::new(None)), values)
+            .evaluate(&ctx.unwrap_or(&Context::new(None)), thing)
     }
 
     pub fn matches(&self, thing: Option<&PyDict>) -> bool {

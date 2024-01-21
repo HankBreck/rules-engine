@@ -47,13 +47,12 @@ impl Parser {
         }
     }
 
-    pub fn parse(&self, text: String, context: &Context) -> Result<Py<PyAny>, PyErr> {
-        // FIXME: Map error to python type
+    pub fn parse(&self, text: String, context: &Context) -> PyResult<Py<PyAny>> {
         let res = self.parse_internal(text).map_err(map_err_to_py)?;
         Python::with_gil(|py| -> Result<Py<PyAny>, PyErr> {
             // FIXME: We should be returning a statement from this parse function
             //  - Can an enum be a python class? Probably not so we'll need to wrap it in a struct or something
-            match res.evaluate(context, &HashMap::new()) {
+            match res.evaluate(context, None) {
                 Ok(result) => Ok(result.into_py(py)),
                 Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                     e.to_string(),

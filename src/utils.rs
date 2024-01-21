@@ -1,48 +1,46 @@
-use pyo3::types::{PyAny, PyDict};
-use std::collections::HashMap;
+use pyo3::types::{PyAny, PyDict, PyFloat, PyInt, PyString};
+use pyo3::PyResult;
 
-use crate::ast::{EvalResultTypes, NestedValue};
-use crate::errors::TypeConversionError;
+use crate::ast::EvalResultTypes;
 
-pub fn py_dict_to_hashmap(
-    obj: Option<&PyDict>,
-) -> Result<HashMap<String, NestedValue>, TypeConversionError> {
-    match obj {
-        Some(dict) => {
-            let mut map = HashMap::new();
-            for (key, value) in dict.into_iter() {
-                let key = key.extract::<String>().map_err(|_| {
-                    TypeConversionError::new("Could not convert value: key is not a string")
-                })?;
-                let nested_value = convert(value)?;
-                map.insert(key, nested_value);
-            }
-            Ok(map)
+/// Get a potentially nested value from a python dict.
+///
+/// # Arguments
+///
+/// * `py_dict` - The python dict to get the value from
+/// * `keys` - The keys to traverse to get the value
+///
+/// # Returns
+///
+/// * `Ok(Some(EvalResultTypes))` - The value if it exists
+/// * `Ok(None)` - The value does not exist
+/// * `Err(PyErr)` - An error occurred
+pub fn get_value_from_py_dict(
+    py_dict: &PyDict,
+    keys: &[&str],
+) -> PyResult<Option<EvalResultTypes>> {
+    let mut current_value: &PyAny = py_dict.as_ref();
+    for &key in keys {
+        match current_value.get_item(key) {
+            Ok(value) => current_value = value,
+            Err(_) => return Ok(None),
         }
-        None => Ok(HashMap::new()),
     }
+    try_into_eval_result_types(current_value).map(Some)
 }
 
-fn convert(obj: &PyAny) -> Result<NestedValue, TypeConversionError> {
-    if let Ok(dict) = obj.downcast::<PyDict>() {
-        let mut map = HashMap::new();
-        for (key, value) in dict.into_iter() {
-            let key = key.extract::<String>().map_err(|_| {
-                TypeConversionError::new("Could not convert value: key is not a string")
-            })?;
-            let nested_value = convert(value)?;
-            map.insert(key, nested_value);
-        }
-        Ok(NestedValue::Nested(map))
-    } else if let Ok(val) = obj.extract::<f64>() {
-        Ok(NestedValue::Primitive(EvalResultTypes::Float(val)))
-    } else if let Ok(val) = obj.extract::<bool>() {
-        Ok(NestedValue::Primitive(EvalResultTypes::Boolean(val)))
-    } else if let Ok(val) = obj.extract::<i64>() {
-        Ok(NestedValue::Primitive(EvalResultTypes::Integer(val)))
-    } else if let Ok(val) = obj.extract::<String>() {
-        Ok(NestedValue::Primitive(EvalResultTypes::String(val)))
-    } else {
-        Err(TypeConversionError::new("Could not convert value"))
+fn try_into_eval_result_types(value: &PyAny) -> PyResult<EvalResultTypes> {
+    if let Ok(py_str) = value.extract::<&PyString>() {
+        return Ok(EvalResultTypes::String(py_str.to_string()));
     }
+    if let Ok(py_int) = value.extract::<&PyInt>() {
+        return Ok(EvalResultTypes::Integer(py_int.extract()?));
+    }
+    if let Ok(py_float) = value.extract::<&PyFloat>() {
+        return Ok(EvalResultTypes::Float(py_float.extract()?));
+    }
+    if let Ok(py_bool) = value.extract::<bool>() {
+        return Ok(EvalResultTypes::Boolean(py_bool));
+    }
+    Err(pyo3::exceptions::PyTypeError::new_err("Unsupported type"))
 }
