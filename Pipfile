@@ -9,6 +9,7 @@ maturin = "==1.2.3"
 [packages]
 rule-engine = "*"
 rust-rule-engine = {file = "packages/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
+zen-engine = "*"
 
 [requires]
 python_version = "3.12"
