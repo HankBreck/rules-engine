@@ -1,3 +1,2 @@
 [alias]
-t = "test"
 br = "build --release"

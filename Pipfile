@@ -8,8 +8,8 @@ maturin = "==1.2.3"
 
 [packages]
 rule-engine = "*"
-rust-rule-engine = {file = "packages/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
 zen-engine = "*"
+rust-rule-engine = {file = "packages/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
 
 [requires]
 python_version = "3.12"
@@ -19,4 +19,4 @@ refresh = "./scripts/refresh.sh"
 build-whl = "maturin build -i python3.12 -b pyo3 -o ./packages --release --strip"
 test-fresh = "sh -c \"./scripts/refresh.sh && python -m unittest -v tests\""
 test = "python -m unittest -v tests"
-profile = "python ./compare.py"
+compare = "python ./compare.py"
