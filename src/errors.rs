@@ -1,6 +1,6 @@
-use std::fmt;
 use pyo3::exceptions::PyValueError;
 use pyo3::PyErr;
+use std::fmt;
 
 macro_rules! define_error {
     ($name:ident, $base:ident) => {
@@ -66,7 +66,7 @@ pub struct ParseError {
 }
 impl ParseError {
     pub fn new(message: &str) -> Self {
-        ParseError{
+        ParseError {
             message: message.to_string(),
         }
     }
@@ -76,6 +76,10 @@ impl fmt::Display for ParseError {
         write!(f, "{}", self.message)
     }
 }
+impl From<ParseError> for PyErr {
+    fn from(err: ParseError) -> Self {
+        PyErr::new::<PyValueError, _>(err.message)
+    }
+}
 
 define_error!(SymbolResolutionError, ParseError);
-

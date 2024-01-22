@@ -61,6 +61,7 @@ Primary -> Result<PrimaryExpression, ()>:
       | 'TRUE' { Ok(PrimaryExpression::True) }
       | 'FALSE' { Ok(PrimaryExpression::False) }
       | 'SYMBOL'  { Ok(PrimaryExpression::Symbol($lexer.span_str($span).to_string())) }
+      | 'ATTRIBUTE'  { Ok(PrimaryExpression::Attribute($lexer.span_str($span).to_string())) }
       | 'STRING'  { Ok(PrimaryExpression::String(
             $lexer.span_str($span).to_string().trim_matches('"').to_string()
         )) }

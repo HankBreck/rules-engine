@@ -42,6 +42,23 @@ impl Context {
     }
 
     // TODO: Implement attribute resolution
+    pub fn resolve_attribute(
+        &self,
+        keys: &[&str],
+        thing: Option<&PyDict>,
+    ) -> Result<EvalResultTypes, SymbolResolutionError> {
+        if let Some(dict) = thing {
+            match get_value_from_py_dict(dict, keys) {
+                Ok(Some(value)) => return Ok(value),
+                Err(_) => return Err(SymbolResolutionError::new("Failed to get value")),
+                _ => {}
+            }
+        }
+        Err(SymbolResolutionError::new(&format!(
+            "Symbol {} not found",
+            keys.join("."),
+        )))
+    }
 }
 
 #[pyclass]
@@ -54,11 +71,10 @@ pub struct Rule {
 #[pymethods]
 impl Rule {
     #[new]
-    pub fn new(text: String) -> Self {
+    pub fn new(text: String) -> PyResult<Self> {
         let parser = parser::Parser::new();
-        // FIXME: Handle errors more elegantly
-        let statement = parser.parse_internal(text).unwrap();
-        Rule { parser, statement }
+        let statement = parser.parse_internal(text)?;
+        Ok(Rule { parser, statement })
     }
 
     /// Test whether or not the rule is syntactically correct. This verifies the grammar is well structured and that
@@ -140,6 +156,8 @@ mod tests {
 
     #[test]
     fn test_evaluate_with_multisymbol_resolution() {
+        let attrs = &["hi", "im", "hank", "in", "utah"];
+        [..=attrs][0].iter().for_each(|x| println!("\t{}", x));
         pyo3::prepare_freethreaded_python();
         let rule = Rule::new("age >= required_age".into());
         let _ = &Python::with_gil(|py| {

@@ -283,6 +283,7 @@ pub enum PrimaryExpression {
     True,
     False,
     Symbol(String),
+    Attribute(String),
     String(String),
 }
 impl PrimaryExpression {
@@ -294,6 +295,11 @@ impl PrimaryExpression {
             PrimaryExpression::Symbol(str) => ctx
                 .resolve(str, thing)
                 .map_err(|err| EvaluationError::new(&err.to_string())),
+            PrimaryExpression::Attribute(raw_attr) => {
+                let keys: Vec<&str> = raw_attr.split('.').collect();
+                ctx.resolve_attribute(&keys, thing)
+                    .map_err(|err| EvaluationError::new(&err.to_string()))
+            }
             PrimaryExpression::String(str) => Ok(EvalResultTypes::String(str.clone())),
         }
     }

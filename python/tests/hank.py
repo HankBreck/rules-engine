@@ -86,3 +86,31 @@ class SymbolResolutionTests(unittest.TestCase):
         self.assertTrue(engine.Rule("1 >= age").evaluate({"age": 1.0}))
         self.assertFalse(engine.Rule("age < 0").evaluate({"age": 0.0}))
         self.assertFalse(engine.Rule("0 <= age").evaluate({"age": -0.001}))
+
+    def test_symbol_resolution_fails_on_nonexistent_symbol(self):
+        self.assertRaises(ValueError, engine.Rule("1 == age").evaluate, {"name": "Hank"})
+
+    def test_parsing_fails_on_invalid_symbol_name(self):
+        self.assertRaises(ValueError, engine.Rule, ".identifier == 1")
+
+class AttributeResolutionTests(unittest.TestCase):
+
+    def test_attribute_resolution(self):
+        self.assertTrue(engine.Rule("person.age == 1").evaluate({"person": {"age": 1}}))
+
+    def test_attribute_resolution_with_string_literal(self):
+        self.assertTrue(engine.Rule("person.name == \"Hank\"").evaluate({"person": {"name": "Hank"}}))
+
+    def test_attribute_resolution_with_string_literal_is_case_sensitive(self):
+        self.assertFalse(engine.Rule("person.name == \"Hank\"").evaluate({"person": {"name": "hank"}}))
+
+    def test_attribute_resolution_deeply_nested(self):
+        self.assertTrue(engine.Rule("l1.l2.l3.l4.l5.l6 == 1").evaluate({"l1": {"l2": {"l3": {"l4": {"l5": {"l6": 1}}}}}}))
+
+    def test_attribute_resolution_fails_on_nonexistent_attr(self):
+        self.assertRaises(ValueError, engine.Rule("1 == person.age").evaluate, {"person": {"name": "Hank"}})
+
+    def test_parsing_fails_on_invalid_attr_name(self):
+        self.assertRaises(ValueError, engine.Rule, "person.1abc == 1")
+
+
