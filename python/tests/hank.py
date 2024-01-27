@@ -8,44 +8,24 @@ class LogicalExpressionTests(unittest.TestCase):
             self.assertTrue(engine.Rule("1 == 1 and 2 == 2").evaluate(None))
             self.assertFalse(engine.Rule("1 == 1 and 2 == 3").evaluate(None))
 
-        def test_and_on_non_booleans(self):
-            invalid_rules = [
-                "\"foo\" and \"bar\"",
-                "1 and 2",
-                "1.2345 and 2.3456",
-                "true and \"false\""
-            ]
-            for rule in invalid_rules:
-                self.assertRaises(
-                    ValueError,
-                    engine.Rule(rule).evaluate,
-                    None
-                )
+        def test_and_on_truthy_values(self):
+            self.assertTrue(engine.Rule("1 and 2").evaluate(None))
+            self.assertFalse(engine.Rule("1 and 0").evaluate(None))
+            self.assertFalse(engine.Rule("0 and 1").evaluate(None))
+            self.assertFalse(engine.Rule("0 and 0").evaluate(None))
 
         def test_or(self):
             self.assertTrue(engine.Rule("1 == 1 or 2 == 3").evaluate(None))
             self.assertFalse(engine.Rule("1 == 2 or 2 == 3").evaluate(None))
 
-        def test_or_on_non_booleans(self):
-            invalid_rules = [
-                "\"foo\" or \"bar\"",
-                "1 or 2",
-                "1.2345 or 2.3456",
-                "true or \"false\""
-            ]
-            for rule in invalid_rules:
-                self.assertRaises(
-                    ValueError,
-                    engine.Rule(rule).evaluate,
-                    None
-                )
+        def test_or_on_truthy_values(self):
+            self.assertTrue(engine.Rule("1 or 2").evaluate(None))
+            self.assertTrue(engine.Rule("1 or 0").evaluate(None))
+            self.assertTrue(engine.Rule("0 or 1").evaluate(None))
+            self.assertFalse(engine.Rule("0 or 0").evaluate(None))
+            self.assertTrue(engine.Rule("\"foo\" or false").evaluate(None))
+            self.assertTrue(engine.Rule("false or 'foo'").evaluate(None))
 
-        def test_or_on_strings(self):
-            self.assertRaises(
-                ValueError,
-                engine.Rule("\"foo\" or \"bar\"").evaluate,
-                None
-            )
 
 class ComparisonExpressionTests(unittest.TestCase):
 
@@ -66,6 +46,32 @@ class ComparisonExpressionTests(unittest.TestCase):
         self.assertTrue(engine.Rule("0 <= 1").evaluate(None))
         self.assertTrue(engine.Rule("1 <= 1").evaluate(None))
         self.assertFalse(engine.Rule("1 <= 0").evaluate(None))
+
+class AdditiveExpressionTests(unittest.TestCase):
+
+    def test_int_addition(self):
+        self.assertEqual(engine.Rule("1 + 1").evaluate(None), 2)
+        self.assertEqual(engine.Rule("255 + 1").evaluate(None), 256)
+
+    def test_float_addition(self):
+        self.assertEqual(engine.Rule("1.0 + 1.0").evaluate(None), 2.0)
+
+    def test_float_int_addition(self):
+        self.assertEqual(engine.Rule("1.5 + 1").evaluate(None), 2.5)
+        self.assertEqual(engine.Rule("1 + 2.3").evaluate(None), 3.3)
+
+    def test_int_subtraction(self):
+        self.assertEqual(engine.Rule("1 - 1").evaluate(None), 0)
+        self.assertEqual(engine.Rule("-1 - 1").evaluate(None), -2)
+
+    def test_float_subtraction(self):
+        self.assertEqual(engine.Rule("1.0 - 1.0").evaluate(None), 0.0)
+        self.assertEqual(engine.Rule("-10.0 - 1.0").evaluate(None), -11.0)
+
+    def test_float_int_subtraction(self):
+        self.assertEqual(engine.Rule("1.5 - 1").evaluate(None), 0.5)
+        self.assertEqual(engine.Rule("1 - 2.5").evaluate(None), -1.5)
+
 
 class SymbolResolutionTests(unittest.TestCase):
 

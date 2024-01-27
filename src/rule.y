@@ -1,5 +1,4 @@
 %start Expr
-%avoid_insert "FLOAT"
 %expect-unused Unmatched "UNMATCHED"
 %%
 Expr -> Result<Expression, ()>:
@@ -43,7 +42,9 @@ Comparison -> Result<ComparisonExpression, ()>:
      ;
 
 Additive -> Result<AdditiveExpression, ()>:
-      Factor { Ok(AdditiveExpression::Factor($1?)) }
+    Factor 'ADD' Factor { Ok(AdditiveExpression::Add($1?, $3?)) }
+    | Factor 'SUB' Factor { Ok(AdditiveExpression::Subtract($1?, $3?)) }
+    | Factor { Ok(AdditiveExpression::Factor($1?)) }
     ;
 
 Factor -> Result<FactorExpression, ()>:

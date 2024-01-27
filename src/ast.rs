@@ -231,11 +231,55 @@ impl ComparisonExpression {
 }
 
 pub enum AdditiveExpression {
+    Add(FactorExpression, FactorExpression),
+    Subtract(FactorExpression, FactorExpression),
     Factor(FactorExpression),
 }
 impl AdditiveExpression {
     pub fn evaluate(&self, ctx: &Context, thing: Option<&PyDict>) -> EvalResult {
         match self {
+            AdditiveExpression::Add(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                match (lhs, rhs) {
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs + rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs + (rhs as f64)))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float((lhs as f64) + rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Integer(lhs + rhs))
+                    }
+                    // TODO: Do we implement string concatenation?
+                    // (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => {
+                    //     Ok(EvalResultTypes::String(format!("{}{}", lhs, rhs)))
+                    // }
+                    _ => Err(EvaluationError::new("Cannot add different types")),
+                }
+            }
+            AdditiveExpression::Subtract(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                match (lhs, rhs) {
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs - rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs - (rhs as f64)))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float((lhs as f64) - rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Integer(lhs - rhs))
+                    }
+                    _ => Err(EvaluationError::new("Cannot subtract different types")),
+                }
+            }
             AdditiveExpression::Factor(factor) => factor.evaluate(ctx, thing),
         }
     }

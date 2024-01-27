@@ -237,7 +237,7 @@ mod tests {
     }
 
     #[test]
-    fn test_evaluation_() {
+    fn test_evaluation_test() {
         pyo3::prepare_freethreaded_python();
         let rule =
             Rule::new("attribution.provider_facility_id and not attribution.unassigned".into())
@@ -253,5 +253,13 @@ mod tests {
             let result = rule.evaluate(Some(dict), None).unwrap();
             assert_eq!(result, EvalResultTypes::Boolean(true));
         });
+    }
+
+    #[test]
+    fn test_addition() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new("1.0 + 1".into()).unwrap();
+        let result = rule.evaluate(None, None).unwrap();
+        assert_eq!(result, EvalResultTypes::Integer(2));
     }
 }

@@ -91,18 +91,16 @@ comparison_expression = additive_expression { (">" | ">=" | "<" | "<=" ) additiv
 
 additive_expression = factor_expression { ("+" | "-" ) factor_expression };
 
-factor_expression = unary_expression { ("/" | "*" ) unary_expression };
+factor_expression = unary_expression { ("/" | "*" | "%" ) unary_expression };
 
 unary_expression = ( "not" | "-" ) unary_expression | primary_expression;
 
 primary_expression = IDENTIFIER | STRING | INTEGER | "true" | "false" | "null"| 
-                     list_literal | function_call | "(", expression, ")"
+                     list_literal | "(", expression, ")"
 
 list_literal = '[', expression,  { ',', expression } ']'; 
 
 function_call = IDENTIFIER, '(', argument_list , ')'
 
 argument_list = [ expression , { ',' , expression } ]
-
-type_expression = 'int' | 'string' | 'bool' | 'object' | 'list' [, '<' , type_expression, '>']
 ```

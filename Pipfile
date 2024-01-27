@@ -9,7 +9,7 @@ maturin = "==1.2.3"
 [packages]
 rule-engine = "*"
 zen-engine = "*"
-rust-rule-engine = {file = "target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
+rust-rule-engine = {file = "target/wheels/rust_rule_engine-0.1.0-cp38-cp38-macosx_10_12_x86_64.whl"}
 
 [requires]
 python_version = "3.8"

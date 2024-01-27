@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "30d4611c87124f20e6788b0672cfde00391bc86d398e322eca1d0188952505cf"
+            "sha256": "acaebf276b3ef603eaec038aecd2e07b084e60acec9e50b684f98638d0bbda2c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -39,9 +39,9 @@
             "version": "==4.3.1"
         },
         "rust-rule-engine": {
-            "file": "target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl",
+            "file": "target/wheels/rust_rule_engine-0.1.0-cp38-cp38-macosx_10_12_x86_64.whl",
             "hashes": [
-                "sha256:9891569d6b0888934b4e4e14424f51864c9402f1248bb4d929347aba2b1e525e"
+                "sha256:4ccfe330170efc33e4d64378bba062995ceb9e266dbb4783851130d72f00c563"
             ]
         },
         "six": {
@@ -112,6 +112,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==1.2.3"
+        },
+        "tomli": {
+            "hashes": [
+                "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
+                "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
+            ],
+            "markers": "python_version < '3.11'",
+            "version": "==2.0.1"
         }
     }
 }
