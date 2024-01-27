@@ -208,4 +208,31 @@ mod tests {
             assert_eq!(result, EvalResultTypes::Boolean(true));
         });
     }
+
+    #[test]
+    fn test_evaluate_unary_not() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new("not true".into()).unwrap();
+        let _ = &Python::with_gil(|py| {
+            let result = rule.evaluate(None, None).unwrap();
+            assert_eq!(result, EvalResultTypes::Boolean(false));
+        });
+    }
+
+    #[test]
+    fn test_evaluate_unary_minus() {
+        pyo3::prepare_freethreaded_python();
+        let true_rule = Rule::new("1 > -1".into()).unwrap();
+        let false_rule = Rule::new("-1 < -2".into()).unwrap();
+        let _ = &Python::with_gil(|py| {
+            assert_eq!(
+                true_rule.evaluate(None, None).unwrap(),
+                EvalResultTypes::Boolean(true),
+            );
+            assert_eq!(
+                false_rule.evaluate(None, None).unwrap(),
+                EvalResultTypes::Boolean(false),
+            );
+        });
+    }
 }

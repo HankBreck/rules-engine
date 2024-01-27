@@ -51,7 +51,9 @@ Factor -> Result<FactorExpression, ()>:
     ;
 
 Unary -> Result<UnaryExpression, ()>:
-      Primary { Ok(UnaryExpression::Primary($1?)) }
+    'NOT' Primary { Ok(UnaryExpression::Not($2?)) }
+    | 'SUB' Primary { Ok(UnaryExpression::Minus($2?)) }
+    | Primary { Ok(UnaryExpression::Primary($1?)) }
     ;
 
 Primary -> Result<PrimaryExpression, ()>:

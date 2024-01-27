@@ -268,11 +268,28 @@ impl FactorExpression {
 }
 
 pub enum UnaryExpression {
+    Not(PrimaryExpression),
+    Minus(PrimaryExpression),
     Primary(PrimaryExpression),
 }
 impl UnaryExpression {
     pub fn evaluate(&self, ctx: &Context, thing: Option<&PyDict>) -> EvalResult {
         match self {
+            UnaryExpression::Not(primary) => {
+                let primary = primary.evaluate(ctx, thing)?;
+                match primary {
+                    EvalResultTypes::Boolean(value) => Ok(EvalResultTypes::Boolean(!value)),
+                    _ => Err(EvaluationError::new("Cannot negate non-boolean value")),
+                }
+            }
+            UnaryExpression::Minus(primary) => {
+                let primary = primary.evaluate(ctx, thing)?;
+                match primary {
+                    EvalResultTypes::Float(value) => Ok(EvalResultTypes::Float(-value)),
+                    EvalResultTypes::Integer(value) => Ok(EvalResultTypes::Integer(-value)),
+                    _ => Err(EvaluationError::new("Cannot negate non-numeric value")),
+                }
+            }
             UnaryExpression::Primary(primary) => primary.evaluate(ctx, thing),
         }
     }
