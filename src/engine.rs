@@ -1,4 +1,5 @@
 use crate::ast::{EvalResult, EvalResultTypes, Statement};
+use crate::builtins::resolve_builtin_methods;
 use crate::errors::{EvaluationError, SymbolResolutionError};
 use crate::parser;
 use crate::utils::get_value_from_py_dict;
@@ -41,12 +42,18 @@ impl Context {
         )))
     }
 
-    // TODO: Implement attribute resolution
     pub fn resolve_attribute(
         &self,
         keys: &[&str],
         thing: Option<&PyDict>,
     ) -> Result<EvalResultTypes, SymbolResolutionError> {
+        // If the last key is a builtin method, we need to resolve the value of the attribute and then call the method
+        if let Ok(builtin_method) = resolve_builtin_methods(keys[keys.len() - 1]) {
+            let value = self.resolve_attribute(&keys[..keys.len() - 1], thing)?;
+            return builtin_method(value)
+                .map_err(|err| SymbolResolutionError::new(&err.to_string()));
+        }
+        // Fetch attribute's value from original python object
         if let Some(dict) = thing {
             match get_value_from_py_dict(dict, keys) {
                 Ok(Some(value)) => return Ok(value),
@@ -145,7 +152,7 @@ mod tests {
     #[test]
     fn test_evaluate_with_symbol_resolution() {
         pyo3::prepare_freethreaded_python();
-        let rule = Rule::new("age == 1".into());
+        let rule = Rule::new("age == 1".into()).unwrap();
         let _ = &Python::with_gil(|py| {
             let dict = PyDict::new(py);
             dict.set_item("age", 1).unwrap();
@@ -157,13 +164,46 @@ mod tests {
     #[test]
     fn test_evaluate_with_multisymbol_resolution() {
         let attrs = &["hi", "im", "hank", "in", "utah"];
-        [..=attrs][0].iter().for_each(|x| println!("\t{}", x));
         pyo3::prepare_freethreaded_python();
-        let rule = Rule::new("age >= required_age".into());
+        let rule = Rule::new("age >= required_age".into()).unwrap();
         let _ = &Python::with_gil(|py| {
             let dict = PyDict::new(py);
             dict.set_item("age", 23).unwrap();
             dict.set_item("required_age", 21).unwrap();
+            let result = rule.evaluate(Some(dict), None).unwrap();
+            assert_eq!(result, EvalResultTypes::Boolean(true));
+        });
+    }
+
+    #[test]
+    fn test_evaluate_with_builtin_method() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new("age.as_lower == \"hank\"".into()).unwrap();
+        let _ = &Python::with_gil(|py| {
+            let dict = PyDict::new(py);
+            dict.set_item("age", "HANK").unwrap();
+            let result = rule.evaluate(Some(dict), None).unwrap();
+            assert_eq!(result, EvalResultTypes::Boolean(true));
+        });
+    }
+
+    #[test]
+    fn test_evaluate_with_value_from_builtin() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new(
+            "provider1.language.language_code == provider2.language.language_code".into(),
+        )
+        .unwrap();
+        let _ = &Python::with_gil(|py| {
+            let dict = PyDict::new(py);
+            let provider1 = PyDict::new(py);
+            provider1.set_item("language", "en-US").unwrap();
+            dict.set_item("provider1", provider1).unwrap();
+
+            let provider2 = PyDict::new(py);
+            provider2.set_item("language", "en").unwrap();
+            dict.set_item("provider2", provider2).unwrap();
+
             let result = rule.evaluate(Some(dict), None).unwrap();
             assert_eq!(result, EvalResultTypes::Boolean(true));
         });

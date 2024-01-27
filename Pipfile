@@ -12,11 +12,11 @@ zen-engine = "*"
 rust-rule-engine = {file = "target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl"}
 
 [requires]
-python_version = "3.12"
+python_version = "3.8"
 
 [scripts]
 refresh = "./scripts/refresh.sh"
-build-whl = "maturin build -i python3.12 -b pyo3 --release --strip"
+build-whl = "maturin build -i python3.8 -b pyo3 --release --strip"
 test-fresh = "sh -c \"./scripts/refresh.sh && python -m unittest -v python.tests\""
 test = "python -m unittest -v python.tests"
 compare = "python ./scripts/compare.py"

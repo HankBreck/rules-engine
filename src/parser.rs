@@ -1,12 +1,11 @@
 use pyo3::prelude::*;
-use std::collections::HashMap;
 
 use crate::ast::Statement;
 use crate::engine::Context;
 
 use crate::errors::ParseError;
 use lrlex::{lrlex_mod, DefaultLexerTypes};
-use lrpar::{lrpar_mod, NonStreamingLexer};
+use lrpar::lrpar_mod;
 
 lrlex_mod!("rule.l");
 lrpar_mod!("rule.y");

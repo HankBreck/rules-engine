@@ -58,6 +58,8 @@ impl fmt::Display for EngineError {
 }
 
 define_error!(EvaluationError, EngineError);
+define_error!(SymbolResolutionError, EvaluationError);
+define_error!(InvalidParameterTypeError, EvaluationError);
 define_error!(TypeConversionError, EngineError);
 
 #[derive(Debug)]
@@ -81,5 +83,3 @@ impl From<ParseError> for PyErr {
         PyErr::new::<PyValueError, _>(err.message)
     }
 }
-
-define_error!(SymbolResolutionError, ParseError);
