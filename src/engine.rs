@@ -235,4 +235,18 @@ mod tests {
             );
         });
     }
+
+    #[test]
+    fn test_not_unassigned() {
+        pyo3::prepare_freethreaded_python();
+        let rule = Rule::new("not attribution.unassigned".into()).unwrap();
+        let _ = &Python::with_gil(|py| {
+            let dict = PyDict::new(py);
+            let attribution = PyDict::new(py);
+            attribution.set_item("unassigned", false).unwrap();
+            dict.set_item("attribution", attribution).unwrap();
+            let result = rule.evaluate(Some(dict), None).unwrap();
+            assert_eq!(result, EvalResultTypes::Boolean(true));
+        });
+    }
 }

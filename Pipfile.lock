@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4b183a69cff12a55d3f333210cfc184b9224c37f81a72907226a43b4fdcfe5ec"
+            "sha256": "30d4611c87124f20e6788b0672cfde00391bc86d398e322eca1d0188952505cf"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.12"
+            "python_version": "3.8"
         },
         "sources": [
             {
@@ -41,7 +41,7 @@
         "rust-rule-engine": {
             "file": "target/wheels/rust_rule_engine-0.1.0-cp312-cp312-macosx_10_12_x86_64.whl",
             "hashes": [
-                "sha256:39c2d31c1bdae698fdcc1bdc962d887da3bc26b7397f0ff6f93789348921acb7"
+                "sha256:9891569d6b0888934b4e4e14424f51864c9402f1248bb4d929347aba2b1e525e"
             ]
         },
         "six": {

@@ -1,4 +1,4 @@
-use pyo3::types::{PyAny, PyDict, PyFloat, PyInt, PyString};
+use pyo3::types::{PyAny, PyBool, PyDict, PyFloat, PyInt, PyString};
 use pyo3::PyResult;
 
 use crate::ast::EvalResultTypes;
@@ -33,14 +33,16 @@ fn try_into_eval_result_types(value: &PyAny) -> PyResult<EvalResultTypes> {
     if let Ok(py_str) = value.extract::<&PyString>() {
         return Ok(EvalResultTypes::String(py_str.to_string()));
     }
+    // Boolean MUST be checked before int and float. Otherwise the bool will be casted to an int
+    if let Ok(py_bool) = value.extract::<&PyBool>() {
+        return Ok(EvalResultTypes::Boolean(py_bool.extract()?));
+    }
+    // Int MUST be checked before float. Otherwise the int will be casted to a float
     if let Ok(py_int) = value.extract::<&PyInt>() {
         return Ok(EvalResultTypes::Float(py_int.extract()?));
     }
     if let Ok(py_float) = value.extract::<&PyFloat>() {
         return Ok(EvalResultTypes::Float(py_float.extract()?));
-    }
-    if let Ok(py_bool) = value.extract::<bool>() {
-        return Ok(EvalResultTypes::Boolean(py_bool));
     }
     Err(pyo3::exceptions::PyTypeError::new_err("Unsupported type"))
 }
