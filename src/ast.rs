@@ -12,11 +12,24 @@ pub enum EvalResultTypes {
     Integer(i64),
     String(String),
 }
+impl EvalResultTypes {
+    pub fn is_truthy(&self) -> bool {
+        match self {
+            EvalResultTypes::Boolean(value) => *value,
+            EvalResultTypes::Float(value) => *value != 0.0,
+            EvalResultTypes::Integer(value) => *value != 0,
+            EvalResultTypes::String(value) => !value.is_empty(),
+            // TODO: Ensure collections are not empty
+        }
+    }
+}
 impl PartialEq for EvalResultTypes {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => lhs == rhs,
             (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => lhs == rhs,
+            (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => *lhs as f64 == *rhs,
+            (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => *lhs == *rhs as f64,
             (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => lhs == rhs,
             (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => lhs == rhs,
             _ => false,
@@ -68,22 +81,12 @@ impl LogicalExpression {
             LogicalExpression::And(lhs, rhs) => {
                 let lhs = lhs.evaluate(ctx, thing)?;
                 let rhs = rhs.evaluate(ctx, thing)?;
-                match (lhs, rhs) {
-                    (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs && rhs))
-                    }
-                    _ => Err(EvaluationError::new("Cannot compare different types")),
-                }
+                Ok(EvalResultTypes::Boolean(lhs.is_truthy() && rhs.is_truthy()))
             }
             LogicalExpression::Or(lhs, rhs) => {
                 let lhs = lhs.evaluate(ctx, thing)?;
                 let rhs = rhs.evaluate(ctx, thing)?;
-                match (lhs, rhs) {
-                    (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs || rhs))
-                    }
-                    _ => Err(EvaluationError::new("Cannot compare different types")),
-                }
+                Ok(EvalResultTypes::Boolean(lhs.is_truthy() || rhs.is_truthy()))
             }
             LogicalExpression::Equality(eq) => eq.evaluate(ctx, thing),
         }
@@ -96,59 +99,41 @@ pub enum EqualityExpression {
     Comparison(ComparisonExpression), // Value passthrough
 }
 impl EqualityExpression {
+    fn compare_eval_results(
+        &self,
+        lhs: EvalResultTypes,
+        rhs: EvalResultTypes,
+        equal: bool,
+    ) -> EvalResult {
+        let result = match (&lhs, &rhs) {
+            (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => lhs == rhs,
+            (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => &(*lhs as f64) == rhs,
+            (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => lhs == &(*rhs as f64),
+            (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => lhs == rhs,
+            (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => lhs == rhs,
+            (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => lhs == rhs,
+            _ => return Err(EvaluationError::new("Cannot compare different types")),
+        };
+
+        Ok(EvalResultTypes::Boolean(if equal {
+            result
+        } else {
+            !result
+        }))
+    }
+
     pub fn evaluate(&self, ctx: &Context, thing: Option<&PyDict>) -> EvalResult {
         match self {
-            EqualityExpression::Equal(lhs, rhs) => {
-                let lhs = lhs.evaluate(ctx, thing)?;
-                let rhs = rhs.evaluate(ctx, thing)?;
-                match (lhs, rhs) {
-                    // TODO: This is a bit of a mess, but it works for now
-                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs == rhs))
-                    }
-                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs as f64 == rhs))
-                    }
-                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs == rhs as f64))
-                    }
-                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs == rhs))
-                    }
-                    (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs == rhs))
-                    }
-                    (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs == rhs))
-                    }
-                    _ => Err(EvaluationError::new("Cannot compare different types")),
-                }
-            }
-            EqualityExpression::NotEqual(lhs, rhs) => {
-                let lhs = lhs.evaluate(ctx, thing)?;
-                let rhs = rhs.evaluate(ctx, thing)?;
-                match (lhs, rhs) {
-                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs != rhs))
-                    }
-                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs as f64 != rhs))
-                    }
-                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs != rhs as f64))
-                    }
-                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs != rhs))
-                    }
-                    (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs != rhs))
-                    }
-                    (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => {
-                        Ok(EvalResultTypes::Boolean(lhs != rhs))
-                    }
-                    _ => Err(EvaluationError::new("Cannot compare different types")),
-                }
-            }
+            EqualityExpression::Equal(lhs, rhs) => self.compare_eval_results(
+                lhs.evaluate(ctx, thing)?,
+                rhs.evaluate(ctx, thing)?,
+                true,
+            ),
+            EqualityExpression::NotEqual(lhs, rhs) => self.compare_eval_results(
+                lhs.evaluate(ctx, thing)?,
+                rhs.evaluate(ctx, thing)?,
+                false,
+            ),
             EqualityExpression::Comparison(comp) => comp.evaluate(ctx, thing),
         }
     }

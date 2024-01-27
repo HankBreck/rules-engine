@@ -237,13 +237,18 @@ mod tests {
     }
 
     #[test]
-    fn test_not_unassigned() {
+    fn test_evaluation_() {
         pyo3::prepare_freethreaded_python();
-        let rule = Rule::new("not attribution.unassigned".into()).unwrap();
+        let rule =
+            Rule::new("attribution.provider_facility_id and not attribution.unassigned".into())
+                .unwrap();
         let _ = &Python::with_gil(|py| {
             let dict = PyDict::new(py);
             let attribution = PyDict::new(py);
             attribution.set_item("unassigned", false).unwrap();
+            attribution
+                .set_item("provider_facility_id", "1234")
+                .unwrap();
             dict.set_item("attribution", attribution).unwrap();
             let result = rule.evaluate(Some(dict), None).unwrap();
             assert_eq!(result, EvalResultTypes::Boolean(true));
