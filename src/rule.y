@@ -55,16 +55,19 @@ Unary -> Result<UnaryExpression, ()>:
     ;
 
 Primary -> Result<PrimaryExpression, ()>:
-      'FLOAT' { Ok(PrimaryExpression::Float(
-            $lexer.span_str($span).parse::<f64>().unwrap()
-        )) }
-      | 'TRUE' { Ok(PrimaryExpression::True) }
-      | 'FALSE' { Ok(PrimaryExpression::False) }
-      | 'SYMBOL'  { Ok(PrimaryExpression::Symbol($lexer.span_str($span).to_string())) }
-      | 'ATTRIBUTE'  { Ok(PrimaryExpression::Attribute($lexer.span_str($span).to_string())) }
-      | 'STRING'  { Ok(PrimaryExpression::String(
-            $lexer.span_str($span).to_string().trim_matches('"').to_string()
-        )) }
+    'FLOAT' { Ok(PrimaryExpression::Float(
+        $lexer.span_str($span).parse::<f64>().unwrap()
+    ))}
+    | 'TRUE' { Ok(PrimaryExpression::True) }
+    | 'FALSE' { Ok(PrimaryExpression::False) }
+    | 'SYMBOL'  { Ok(PrimaryExpression::Symbol($lexer.span_str($span).to_string())) }
+    | 'ATTRIBUTE'  { Ok(PrimaryExpression::Attribute($lexer.span_str($span).to_string())) }
+    | 'STRING_DOUBLE'  { Ok(PrimaryExpression::String(
+        $lexer.span_str($span).to_string().trim_matches('"').to_string()
+    ))}
+    | 'STRING_SINGLE'  { Ok(PrimaryExpression::String(
+        $lexer.span_str($span).to_string().trim_matches('"').to_string()
+    ))}
     ;
 
 Unmatched -> ():

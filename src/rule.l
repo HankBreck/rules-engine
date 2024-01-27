@@ -31,7 +31,8 @@ or "OR"
 [a-zA-Z_][a-zA-Z0-9_]* "SYMBOL"
 [a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)+ "ATTRIBUTE"
 
-\"(\\.|[^\\"])*?\" "STRING"
+\"(\\.|[^\\"])*?\" "STRING_DOUBLE"
+\'(\\.|[^\\"])*?\' "STRING_SINGLE"
 
 [ \t\n\r]+ ;
 . "UNMATCHED"

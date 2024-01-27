@@ -60,3 +60,17 @@ impl Parser {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parsing_strings() {
+        let parser = Parser::new();
+        // Test double quotes
+        assert!(parser.parse_internal(String::from("\"hello\"")).is_ok());
+        // Test single quotes
+        assert!(parser.parse_internal(String::from("\'hello\'")).is_ok());
+    }
+}
