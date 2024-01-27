@@ -18,7 +18,7 @@ rule_texts = [
 
 rust_rules = [(rust_engine.Rule(rule_text), rule_input) for rule_text, rule_input in rule_texts]
 py_rules = [(py_engine.Rule(rule_text), rule_input) for rule_text, rule_input in rule_texts]
-with open("../examples/zen-gtorlt.json") as f:
+with open("examples/zen-gtorlt.json") as f:
     content = f.read()
 zen_rules = [(zen_engine.create_decision(content), rule_texts[0][1])]
 
