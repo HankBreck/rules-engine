@@ -73,6 +73,49 @@ class AdditiveExpressionTests(unittest.TestCase):
         self.assertEqual(engine.Rule("1 - 2.5").evaluate(None), -1.5)
 
 
+class FactorExpressionTests(unittest.TestCase):
+
+    def test_int_multiplication(self):
+        self.assertEqual(engine.Rule("1 * 1").evaluate(None), 1)
+        self.assertEqual(engine.Rule("255 * 1").evaluate(None), 255)
+        self.assertEqual(engine.Rule("255 * 0").evaluate(None), 0)
+
+    def test_float_multiplication(self):
+        self.assertEqual(engine.Rule("2.0 * 1.5").evaluate(None), 3.0)
+        self.assertEqual(engine.Rule("1.0 * 0.0").evaluate(None), 0.0)
+
+    def test_float_int_multiplication(self):
+        self.assertEqual(engine.Rule("1.5 * 1").evaluate(None), 1.5)
+        self.assertEqual(engine.Rule("1 * 2.5").evaluate(None), 2.5)
+
+    def test_int_division(self):
+        self.assertEqual(engine.Rule("1 / 1").evaluate(None), 1)
+        self.assertEqual(engine.Rule("255 / 1").evaluate(None), 255)
+        self.assertRaises(ValueError, engine.Rule("255 / 0").evaluate, None)
+
+    def test_float_division(self):
+        self.assertEqual(engine.Rule("3.0 / 1.5").evaluate(None), 2.0)
+        self.assertRaises(ValueError, engine.Rule("1.0 / 0.0").evaluate, None)
+
+    def test_float_int_division(self):
+        self.assertEqual(engine.Rule("1.5 / 1").evaluate(None), 1.5)
+        self.assertEqual(engine.Rule("1 / 2.5").evaluate(None), 0.4)
+
+    def test_int_modulo(self):
+        self.assertEqual(engine.Rule("1 % 1").evaluate(None), 0)
+        self.assertEqual(engine.Rule("255 % 2").evaluate(None), 1)
+        self.assertRaises(ValueError, engine.Rule("255 % 0").evaluate, None)
+
+    def test_float_modulo(self):
+        self.assertEqual(engine.Rule("3.0 % 1.5").evaluate(None), 0.0)
+        self.assertAlmostEquals(engine.Rule("1.0 % 0.3").evaluate(None), 0.1)
+        self.assertRaises(ValueError, engine.Rule("1.0 % 0.0").evaluate, None)
+
+    def test_float_int_modulo(self):
+        self.assertEqual(engine.Rule("1.5 % 1").evaluate(None), 0.5)
+        self.assertEqual(engine.Rule("1 % 2.5").evaluate(None), 1.0)
+
+
 class SymbolResolutionTests(unittest.TestCase):
 
     def test_equality(self):

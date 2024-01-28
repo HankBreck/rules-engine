@@ -48,7 +48,10 @@ Additive -> Result<AdditiveExpression, ()>:
     ;
 
 Factor -> Result<FactorExpression, ()>:
-      Unary { Ok(FactorExpression::Unary($1?)) }
+    Unary 'MUL' Unary { Ok(FactorExpression::Multiply($1?, $3?)) }
+    | Unary 'DIV' Unary { Ok(FactorExpression::Divide($1?, $3?)) }
+    | Unary 'MOD' Unary { Ok(FactorExpression::Modulo($1?, $3?)) }
+    | Unary { Ok(FactorExpression::Unary($1?)) }
     ;
 
 Unary -> Result<UnaryExpression, ()>:

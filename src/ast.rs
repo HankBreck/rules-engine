@@ -286,11 +286,78 @@ impl AdditiveExpression {
 }
 
 pub enum FactorExpression {
+    Multiply(UnaryExpression, UnaryExpression),
+    Divide(UnaryExpression, UnaryExpression),
+    Modulo(UnaryExpression, UnaryExpression),
     Unary(UnaryExpression),
 }
 impl FactorExpression {
     pub fn evaluate(&self, ctx: &Context, thing: Option<&PyDict>) -> EvalResult {
         match self {
+            FactorExpression::Multiply(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                match (lhs, rhs) {
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs * rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs * (rhs as f64)))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float((lhs as f64) * rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Integer(lhs * rhs))
+                    }
+                    _ => Err(EvaluationError::new("Cannot multiply different types")),
+                }
+            }
+            FactorExpression::Divide(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                if rhs == EvalResultTypes::Integer(0) || rhs == EvalResultTypes::Float(0.0) {
+                    return Err(EvaluationError::new("Cannot divide by zero"));
+                }
+                match (lhs, rhs) {
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs / rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs / (rhs as f64)))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float((lhs as f64) / rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        // Cast to float to preserve precision
+                        Ok(EvalResultTypes::Float((lhs as f64) / (rhs as f64)))
+                    }
+                    _ => Err(EvaluationError::new("Cannot divide different types")),
+                }
+            }
+            FactorExpression::Modulo(lhs, rhs) => {
+                let lhs = lhs.evaluate(ctx, thing)?;
+                let rhs = rhs.evaluate(ctx, thing)?;
+                if rhs == EvalResultTypes::Integer(0) || rhs == EvalResultTypes::Float(0.0) {
+                    return Err(EvaluationError::new("Cannot modulo by zero"));
+                }
+                match (lhs, rhs) {
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs % rhs))
+                    }
+                    (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Float(lhs % (rhs as f64)))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Float(rhs)) => {
+                        Ok(EvalResultTypes::Float((lhs as f64) % rhs))
+                    }
+                    (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
+                        Ok(EvalResultTypes::Integer(lhs % rhs))
+                    }
+                    _ => Err(EvaluationError::new("Cannot modulo different types")),
+                }
+            }
             FactorExpression::Unary(unary) => unary.evaluate(ctx, thing),
         }
     }
