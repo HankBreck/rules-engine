@@ -27,6 +27,18 @@ class LogicalExpressionTests(unittest.TestCase):
             self.assertTrue(engine.Rule("false or 'foo'").evaluate(None))
 
 
+class EqualityExpressionTests(unittest.TestCase):
+
+    def test_list_equality(self):
+        self.assertTrue(engine.Rule("[1, 2, 3] == [1, 2, 3]").evaluate(None))
+        self.assertFalse(engine.Rule("[1, 2, 3] == [1, 2, 4]").evaluate(None))
+
+    def test_list_equality_with_different_types(self):
+        self.assertTrue(engine.Rule("[1, 2, 3, 'hello'] == [1, 2, 3, 'hello']").evaluate(None))
+        self.assertTrue(engine.Rule("[1, 2, 3] == [1, 2.0, 3]").evaluate(None))
+        self.assertFalse(engine.Rule("[1, 2, 3, 'hello world'] == [1, 2, 3, 'hello']").evaluate(None))
+
+
 class ComparisonExpressionTests(unittest.TestCase):
 
     def test_GT(self):
@@ -173,3 +185,12 @@ class PrimaryExpressionTests(unittest.TestCase):
 
     def test_grouping_with_symbol(self):
         self.assertEqual(engine.Rule("(age + 3) / 2").evaluate({"age": 1}), 2)
+
+    def test_list(self):
+        self.assertEqual(engine.Rule("[1, 2, 3]").evaluate(None), [1, 2, 3])
+
+    def test_list_with_different_types(self):
+        self.assertEqual(engine.Rule("[1, 2.0, \"3\", false, age]").evaluate({"age": 23}), [1, 2.0, "3", False, 23.0])
+
+    def test_empty_list(self):
+        self.assertEqual(engine.Rule("[]").evaluate(None), [])

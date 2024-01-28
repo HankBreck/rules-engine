@@ -5,6 +5,8 @@
 \] "RBRACKET"
 \{ "LBRACE"
 \} "RBRACE"
+
+\, "COMMA"
 \? "QMARK"
 \: "COLON"
 

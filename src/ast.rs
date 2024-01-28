@@ -11,6 +11,7 @@ pub enum EvalResultTypes {
     Float(f64),
     Integer(i64),
     String(String),
+    List(Vec<EvalResultTypes>),
 }
 impl EvalResultTypes {
     pub fn is_truthy(&self) -> bool {
@@ -19,6 +20,7 @@ impl EvalResultTypes {
             EvalResultTypes::Float(value) => *value != 0.0,
             EvalResultTypes::Integer(value) => *value != 0,
             EvalResultTypes::String(value) => !value.is_empty(),
+            EvalResultTypes::List(value) => !value.is_empty(),
             // TODO: Ensure collections are not empty
         }
     }
@@ -32,6 +34,7 @@ impl PartialEq for EvalResultTypes {
             (EvalResultTypes::Float(lhs), EvalResultTypes::Integer(rhs)) => *lhs == *rhs as f64,
             (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => lhs == rhs,
             (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => lhs == rhs,
+            (EvalResultTypes::List(lhs), EvalResultTypes::List(rhs)) => lhs == rhs,
             _ => false,
         }
     }
@@ -43,6 +46,7 @@ impl IntoPy<PyObject> for EvalResultTypes {
             EvalResultTypes::Float(value) => value.into_py(py),
             EvalResultTypes::Integer(value) => value.into_py(py),
             EvalResultTypes::String(value) => value.into_py(py),
+            EvalResultTypes::List(value) => value.into_py(py),
         }
     }
 }
@@ -112,6 +116,7 @@ impl EqualityExpression {
             (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => lhs == rhs,
             (EvalResultTypes::Boolean(lhs), EvalResultTypes::Boolean(rhs)) => lhs == rhs,
             (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => lhs == rhs,
+            (EvalResultTypes::List(lhs), EvalResultTypes::List(rhs)) => lhs == rhs,
             _ => return Err(EvaluationError::new("Cannot compare different types")),
         };
 
@@ -254,7 +259,7 @@ impl AdditiveExpression {
                     (EvalResultTypes::Integer(lhs), EvalResultTypes::Integer(rhs)) => {
                         Ok(EvalResultTypes::Integer(lhs + rhs))
                     }
-                    // TODO: Do we implement string concatenation?
+                    // TODO: Do we implement string/collection concatenation?
                     // (EvalResultTypes::String(lhs), EvalResultTypes::String(rhs)) => {
                     //     Ok(EvalResultTypes::String(format!("{}{}", lhs, rhs)))
                     // }
@@ -399,6 +404,7 @@ pub enum PrimaryExpression {
     Attribute(String),
     String(String),
     Grouping(Box<Expression>),
+    List(Vec<Expression>),
 }
 impl PrimaryExpression {
     pub fn evaluate(&self, ctx: &Context, thing: Option<&PyDict>) -> EvalResult {
@@ -416,6 +422,13 @@ impl PrimaryExpression {
             }
             PrimaryExpression::String(str) => Ok(EvalResultTypes::String(str.clone())),
             PrimaryExpression::Grouping(expr) => expr.evaluate(ctx, thing),
+            PrimaryExpression::List(exprs) => {
+                let mut result = Vec::new();
+                for expr in exprs {
+                    result.push(expr.evaluate(ctx, thing)?);
+                }
+                Ok(EvalResultTypes::List(result))
+            }
         }
     }
 }

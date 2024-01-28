@@ -109,10 +109,7 @@ impl Rule {
     pub fn matches(&self, thing: Option<&PyDict>) -> bool {
         // Should be the equivalent of calling bool(rule.evaluate(thing)) in Python
         match self.evaluate(thing, None) {
-            Ok(EvalResultTypes::Boolean(value)) => value,
-            Ok(EvalResultTypes::Float(value)) => value != 0f64,
-            Ok(EvalResultTypes::Integer(value)) => value != 0i64,
-            Ok(EvalResultTypes::String(value)) => !value.is_empty(),
+            Ok(result) => result.is_truthy(),
             Err(_) => false,
         }
     }

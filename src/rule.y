@@ -3,7 +3,7 @@
 %%
 Expr -> Result<Expression, ()>:
       Logical { Ok(Expression::Logical($1?)) }
-    ;
+;
 
 Logical -> Result<LogicalExpression, ()>:
       Equality 'AND' Equality {
@@ -13,7 +13,7 @@ Logical -> Result<LogicalExpression, ()>:
         Ok(LogicalExpression::Or(Box::new($1?), Box::new($3?)) )
       }
     | Equality { Ok(LogicalExpression::Equality($1?)) }
-    ;
+;
 
 Equality -> Result<EqualityExpression, ()>:
       Comparison 'EQ' Comparison {
@@ -23,7 +23,7 @@ Equality -> Result<EqualityExpression, ()>:
         Ok(EqualityExpression::NotEqual(Box::new($1?), Box::new($3?)) )
       }
     | Comparison { Ok(EqualityExpression::Comparison($1?)) }
-    ;
+;
 
 Comparison -> Result<ComparisonExpression, ()>:
        Additive 'LT' Additive {
@@ -39,26 +39,26 @@ Comparison -> Result<ComparisonExpression, ()>:
         Ok(ComparisonExpression::GreaterThanOrEqual(Box::new($1?), Box::new($3?)) )
        }
      | Additive { Ok(ComparisonExpression::Additive($1?)) }
-     ;
+;
 
 Additive -> Result<AdditiveExpression, ()>:
     Factor 'ADD' Factor { Ok(AdditiveExpression::Add($1?, $3?)) }
     | Factor 'SUB' Factor { Ok(AdditiveExpression::Subtract($1?, $3?)) }
     | Factor { Ok(AdditiveExpression::Factor($1?)) }
-    ;
+;
 
 Factor -> Result<FactorExpression, ()>:
     Unary 'MUL' Unary { Ok(FactorExpression::Multiply($1?, $3?)) }
     | Unary 'DIV' Unary { Ok(FactorExpression::Divide($1?, $3?)) }
     | Unary 'MOD' Unary { Ok(FactorExpression::Modulo($1?, $3?)) }
     | Unary { Ok(FactorExpression::Unary($1?)) }
-    ;
+;
 
 Unary -> Result<UnaryExpression, ()>:
     'NOT' Primary { Ok(UnaryExpression::Not($2?)) }
     | 'SUB' Primary { Ok(UnaryExpression::Minus($2?)) }
     | Primary { Ok(UnaryExpression::Primary($1?)) }
-    ;
+;
 
 Primary -> Result<PrimaryExpression, ()>:
     'FLOAT' { Ok(PrimaryExpression::Float(
@@ -75,7 +75,23 @@ Primary -> Result<PrimaryExpression, ()>:
         $lexer.span_str($span).to_string().trim_matches('"').to_string()
     ))}
     | 'LPAREN' Expr 'RPAREN' { Ok(PrimaryExpression::Grouping(Box::new($2?))) }
-    ;
+    | 'LBRACKET' ExprList 'RBRACKET' { Ok(PrimaryExpression::List($2?)) }
+;
+
+ExprList -> Result<Vec<Expression>, ()>:
+    /* Empty list */
+    { Ok(Vec::new()) }
+    | NonEmptyExprList { $1 }
+;
+
+NonEmptyExprList -> Result<Vec<Expression>, ()>:
+    Expr { Ok(vec![$1?]) }
+    | NonEmptyExprList 'COMMA' Expr {
+        let mut vec = $1?;
+        vec.push($3?);
+        Ok(vec)
+    }
+;
 
 Unmatched -> ():
       "UNMATCHED" { }
