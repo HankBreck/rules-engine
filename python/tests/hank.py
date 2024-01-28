@@ -163,3 +163,13 @@ class AttributeResolutionTests(unittest.TestCase):
         self.assertRaises(ValueError, engine.Rule, "person.1abc == 1")
 
 
+class PrimaryExpressionTests(unittest.TestCase):
+
+    def test_grouping_valid(self):
+        self.assertTrue(engine.Rule("(1 == 1)").evaluate(None))
+
+    def test_grouping(self):
+        self.assertTrue(engine.Rule("false == (1 >= 2)").evaluate(None))
+
+    def test_grouping_with_symbol(self):
+        self.assertEqual(engine.Rule("(age + 3) / 2").evaluate({"age": 1}), 2)

@@ -398,6 +398,7 @@ pub enum PrimaryExpression {
     Symbol(String),
     Attribute(String),
     String(String),
+    Grouping(Box<Expression>),
 }
 impl PrimaryExpression {
     pub fn evaluate(&self, ctx: &Context, thing: Option<&PyDict>) -> EvalResult {
@@ -414,6 +415,7 @@ impl PrimaryExpression {
                     .map_err(|err| EvaluationError::new(&err.to_string()))
             }
             PrimaryExpression::String(str) => Ok(EvalResultTypes::String(str.clone())),
+            PrimaryExpression::Grouping(expr) => expr.evaluate(ctx, thing),
         }
     }
 }

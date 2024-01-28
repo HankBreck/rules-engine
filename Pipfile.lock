@@ -41,7 +41,7 @@
         "rust-rule-engine": {
             "file": "target/wheels/rust_rule_engine-0.1.0-cp38-cp38-macosx_10_12_x86_64.whl",
             "hashes": [
-                "sha256:7546dbb4005e89857e205d211ef6bdd49fa8e65e632819b8f0163e3969ccba23"
+                "sha256:04d8f5d37517482183ae6c51e5c29a4650b03a99ef1606beabab27c1ed62d14c"
             ]
         },
         "six": {

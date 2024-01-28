@@ -74,6 +74,7 @@ Primary -> Result<PrimaryExpression, ()>:
     | 'STRING_SINGLE'  { Ok(PrimaryExpression::String(
         $lexer.span_str($span).to_string().trim_matches('"').to_string()
     ))}
+    | 'LPAREN' Expr 'RPAREN' { Ok(PrimaryExpression::Grouping(Box::new($2?))) }
     ;
 
 Unmatched -> ():
